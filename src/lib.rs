@@ -1,3 +1,6 @@
+// SPDX-FileCopyrightText: 2026 William VITAL, FR (wvmscs)
+// SPDX-License-Identifier: Unlicense OR 0BSD
+
 //! Relay selection for BitChat location channels (geohash).
 //!
 //! A geohash channel has no server of its own: each app picks the relays

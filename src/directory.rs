@@ -1,3 +1,6 @@
+// SPDX-FileCopyrightText: 2026 William VITAL, FR (wvmscs)
+// SPDX-License-Identifier: Unlicense OR 0BSD
+
 //! Relay lists (`host,lat,lon` CSV): parsing with each app's rules and
 //! normalisation. Ported from bitchat-geohash (`src/directory.rs`, lots 1 and
 //! 11 bis); downloading is left to the caller.

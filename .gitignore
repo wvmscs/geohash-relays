@@ -1,3 +1,6 @@
+# SPDX-FileCopyrightText: 2026 William VITAL, FR (wvmscs)
+# SPDX-License-Identifier: Unlicense OR 0BSD
+
 /target
 .DS_Store
 .env

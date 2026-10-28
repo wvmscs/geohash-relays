@@ -1,3 +1,6 @@
+// SPDX-FileCopyrightText: 2026 William VITAL, FR (wvmscs)
+// SPDX-License-Identifier: Unlicense OR 0BSD
+
 //! The apps' relay choice for a channel: closest relays, iOS and Android.
 //! Ported from bitchat-geohash (`src/select.rs`, lots 1 and 11 bis).
 //!

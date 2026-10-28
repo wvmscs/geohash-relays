@@ -1,3 +1,6 @@
+// SPDX-FileCopyrightText: 2026 William VITAL, FR (wvmscs)
+// SPDX-License-Identifier: Unlicense OR 0BSD
+
 //! Geohash cells: validation, bounds, centre, encoding and the 8 neighbours.
 //!
 //! Self-contained (no dependency), so that the apps can port it as is.

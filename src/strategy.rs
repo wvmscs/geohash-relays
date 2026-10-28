@@ -1,3 +1,6 @@
+// SPDX-FileCopyrightText: 2026 William VITAL, FR (wvmscs)
+// SPDX-License-Identifier: Unlicense OR 0BSD
+
 //! How a client picks the relays of a channel, behind one interface, so that
 //! the apps' rule (`AS`) and the alternatives (`A0` to `A6`, later) can be
 //! swapped and compared. See bitchat-envelope

@@ -33,4 +33,11 @@ the public-domain licence (Unlicense, like the iOS app). Progress is tracked in
 cargo fmt --check
 cargo clippy --all-targets -- -D warnings
 cargo test
+reuse lint      # every file has its copyright and licence (also a GitHub Action)
 ```
+
+<!-- REUSE-IgnoreStart -->
+A new file starts with
+`SPDX-FileCopyrightText: 2026 William VITAL, FR (wvmscs)` and
+`SPDX-License-Identifier: Unlicense OR 0BSD` in a comment, or is covered by `REUSE.toml`.
+<!-- REUSE-IgnoreEnd -->

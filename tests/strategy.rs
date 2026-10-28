@@ -1,3 +1,6 @@
+// SPDX-FileCopyrightText: 2026 William VITAL, FR (wvmscs)
+// SPDX-License-Identifier: Unlicense OR 0BSD
+
 //! The `AS` strategy on the frozen lists.
 
 use geohash_relays::geohash::with_neighbours;

@@ -40,4 +40,7 @@ bitchat-geohash and of bitchat-envelope's `geohash_map`, after the selection cor
 
 ## Licence
 
-Public domain (Unlicense), like the BitChat iOS app, so that both apps can take it.
+Unlicense OR 0BSD, at your choice: public domain like the BitChat iOS app, so that both apps can
+take it, and 0BSD where a public-domain dedication does not hold (in France, for one). The
+frozen relay lists in `tests/data/` keep their own licences (Unlicense, MIT). Every file says so with its SPDX tags ([REUSE](https://reuse.software)): a header, or `REUSE.toml`;
+the licence texts are in `LICENSES/`.
