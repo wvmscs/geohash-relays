@@ -10,6 +10,9 @@
   `Selected` and `GeoRelay` move to `strategy`.
 
 ### Added
+- `bench` (lot 1): rendezvous between two peers, load, stability between two lists, failures,
+  capture cost; deterministic draws (`Rng`, `params::BENCH_SEED`). Example `compare`. Two
+  older frozen lists (`tests/data/README.md`).
 - `params`: every constant, with its source (G14); `GEO_RELAY_COUNT`, `MAX_PRECISION`, list
   URLs and default relays moved there.
 - `sansio`: `EventMeta`, `FilterSpec`, `Input`, `Action`, `Machine`, the form of the

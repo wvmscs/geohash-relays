@@ -79,7 +79,7 @@ retenues, attente de `OK`, `AUTH`, `CLOSED`) font l'objet de PR au lot 12.
 | Lot | Contenu | État |
 |---|---|---|
 | 0 | Restructuration : 8 modules, crate `geohash-relays-net` (GPL, 3 features exclusives, ports, code de communication de la console), `Strategy` et `Selected` généralisés | ✅ |
-| 1 | Banc de comparaison : rendez-vous iOS/Android, charge, stabilité, coût de capture, pannes | ⬜ |
+| 1 | Banc de comparaison : rendez-vous iOS/Android, charge, stabilité, coût de capture, pannes | ✅ |
 | 2 | `a4` : republication entre les ensembles iOS et Android | ⬜ |
 | 3 | `a0` : liste et règle uniques, écrire large / lire étroit, remplacement, relais partagés | ⬜ |
 | 4 | `a6` : qualification NIP-11 et sondes | ⬜ |
@@ -160,9 +160,9 @@ Toutes validées le 29/10/2026, sauf mention contraire.
 - [x] bitchat-geohash : n'a pas besoin de communication partagée (carte en lecture seule, son
       propre écouteur) : reste sur `geohash-relays` seule, au tag `v0.1.0`.
 
-### Lot 1 : banc de comparaison ⬜
+### Lot 1 : banc de comparaison ✅
 
-- [ ] Module `bench` (sans feature) : pour un ensemble de cellules et deux pairs (iOS et
+- [x] Module `bench` (sans feature) : pour un ensemble de cellules et deux pairs (iOS et
       Android de `as_`, ou deux versions d'une liste) :
       - **rendez-vous** : la lecture de l'un recoupe-t-elle l'écriture de l'autre (H1) ;
       - **charge** : serveurs distincts, cellules par serveur au maximum ;
@@ -170,8 +170,22 @@ Toutes validées le 29/10/2026, sauf mention contraire.
       - **pannes** : rendez-vous quand *d* relais choisis tombent (tirage déterministe) ;
       - **coût de capture** : serveurs à placer au centre d'une ville pour prendre les *k*
         places (question 4 du §7).
-- [ ] Données figées : deux versions datées de chaque liste, annotées dans `REUSE.toml`.
-- [ ] Exemple `examples/compare.rs` : tableau par stratégie ; résultats `AS` notés ici.
+- [x] Données figées : deux versions datées de chaque liste, annotées dans `REUSE.toml`.
+- [x] Exemple `examples/compare.rs` : tableau par stratégie ; résultats `AS` notés ici.
+
+Résultats `AS` (référence, listes figées : iOS du 26/07, Android du 25/10 ; anciennes : iOS du
+21/06, Android du 22/10 ; `cargo run --release --example compare`) :
+
+| Mesure | `AS` |
+|---|---|
+| Rendez-vous pair iOS / pair Android, précision 2 (1 024 cellules) | 93,3 % |
+| Idem, 500 cellules de précision 5 | 91,8 % |
+| Serveurs utilisés (Android, précision 2) ; le plus chargé | 119 ; `relay.favillakey.io` (361 cellules) |
+| Cellules à moins de 5 serveurs (Android, précision 2) | **322** (le chiffre du §4, retrouvé) |
+| Stabilité iOS (21/06 → 26/07), Android (22/10 → 25/10), indice de Jaccard moyen | 0,47 ; 0,43 |
+| Rendez-vous avec 1, 2, 3 relais choisis morts | 87 %, 80 %, 75 % |
+| Coût de capture (serveurs au point de la ville), iOS | 5 à Paris, New York, San Francisco, Londres |
+| Idem, Android | > 60 : des serveurs ajoutés au même point perdent les égalités (ordre de la liste) ; il faut être géolocalisé plus près que les serveurs en place |
 
 ### Lot 2 : `a4`, republication ⬜
 
@@ -294,3 +308,6 @@ Toutes validées le 29/10/2026, sauf mention contraire.
   propre) ; bitchat-console sur `-net` (61 tests, `set_strategy` à chaud, `--strategy`) ;
   bitchat-geohash reste au tag `v0.1.0`. Les dépendances `strategies` et `main` des crates
   privées passent par HTTPS et la ligne de commande git.
+- 29/10/2026 : lot 1 fait : module `bench` (rendez-vous, charge, stabilité, pannes, coût de
+  capture), deux versions plus anciennes des listes figées (`tests/data/README.md`), exemple
+  `compare`. Les 322 cellules du §4 sont retrouvées.

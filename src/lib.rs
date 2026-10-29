@@ -27,6 +27,7 @@ pub mod a4;
 pub mod a5;
 pub mod a6;
 pub mod as_;
+pub mod bench;
 mod error;
 pub mod geohash;
 pub mod params;

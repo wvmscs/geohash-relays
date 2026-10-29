@@ -19,3 +19,16 @@ path = "tests/data/nostr_relays.csv"
 precedence = "override"
 SPDX-FileCopyrightText = "2025 permissionlesstech (https://github.com/permissionlesstech/georelays, nostr_relays.csv)"
 SPDX-License-Identifier = "MIT"
+
+# Older versions, for the stability measures of the bench (lot 1).
+[[annotations]]
+path = "tests/data/online_relays_gps-2026-06-21.csv"
+precedence = "override"
+SPDX-FileCopyrightText = "permissionlesstech (https://github.com/permissionlesstech/bitchat, relays/online_relays_gps.csv, commit f688e529f6)"
+SPDX-License-Identifier = "Unlicense"
+
+[[annotations]]
+path = "tests/data/nostr_relays-2026-10-22.csv"
+precedence = "override"
+SPDX-FileCopyrightText = "2025 permissionlesstech (https://github.com/permissionlesstech/georelays, nostr_relays.csv, commit 282e64abd9)"
+SPDX-License-Identifier = "MIT"
