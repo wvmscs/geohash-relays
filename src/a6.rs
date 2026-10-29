@@ -118,6 +118,8 @@ pub struct Probe {
     pub bad_certificate: bool,
     /// `OK true` for the test event (kind 20000).
     pub accepted: Option<bool>,
+    /// The relay sent the test event to a live subscription (R9).
+    pub live: Option<bool>,
     /// Read back after these delays (seconds): found or not.
     pub read_back: Vec<(i64, bool)>,
 }
@@ -186,10 +188,14 @@ impl Verdict {
             probed: probe.is_some(),
             ..Verdict::default()
         };
-        // What the probe saw of the access: it writes and reads, or not.
+        // What the probe saw of the access: it writes and delivers live, or
+        // not (storage is R11, a SHOULD).
         let works = probe.and_then(|p| {
-            p.accepted
-                .map(|ok| ok && p.read_back.first().is_some_and(|(_, found)| *found))
+            p.accepted.map(|ok| {
+                ok && p
+                    .live
+                    .unwrap_or_else(|| p.read_back.first().is_some_and(|(_, found)| *found))
+            })
         });
         if let Some(n) = nip11 {
             if works != Some(true) {
@@ -294,9 +300,11 @@ impl Qualification {
 }
 
 /// The probe machine. For each relay: its NIP-11 document, and, when the
-/// host gave a signed test event for it, a publication then read-backs
-/// after `delays` (the first one [`A6_PROBE_FIRST_READ_SECS`] after the
-/// `OK`). Test events are kind 20000 in [`A6_PROBE_CELL`], one per relay.
+/// host gave a signed test event for it, a live subscription then the
+/// publication (R9: sent to live subscribers), then read-backs after
+/// `delays` (the first one [`A6_PROBE_FIRST_READ_SECS`] after the `OK`;
+/// R11: storage). Test events are kind 20000 in [`A6_PROBE_CELL`], one per
+/// relay.
 pub struct Prober {
     relays: Vec<String>,
     tests: BTreeMap<String, EventMeta>,
@@ -307,6 +315,8 @@ pub struct Prober {
     accepted_at: BTreeMap<String, i64>,
     /// Read-backs in progress: relay -> (delay, found so far).
     reading: BTreeMap<String, (i64, bool)>,
+    /// Relays that sent the test event on the live subscription.
+    live: HashSet<String>,
     started: i64,
     now: i64,
 }
@@ -330,6 +340,7 @@ impl Prober {
             probes: BTreeMap::new(),
             accepted_at: BTreeMap::new(),
             reading: BTreeMap::new(),
+            live: HashSet::new(),
             started: 0,
             now: 0,
         }
@@ -403,6 +414,10 @@ impl Machine for Prober {
             .map(|r| Action::FetchNip11 { relay: r.clone() })
             .collect();
         for (relay, e) in &self.tests {
+            out.push(Action::Subscribe {
+                relay: relay.clone(),
+                filter: Prober::filter(e, e.created_at - 1),
+            });
             out.push(Action::Publish {
                 relay: relay.clone(),
                 id: e.id.clone(),
@@ -447,10 +462,13 @@ impl Machine for Prober {
             }
             Input::Event { relay, event } => {
                 let relay = Self::norm(&relay);
-                if let Some((_, found)) = self.reading.get_mut(&relay)
-                    && self.tests.get(&relay).is_some_and(|t| t.id == event.id)
-                {
-                    *found = true;
+                if self.tests.get(&relay).is_some_and(|t| t.id == event.id) {
+                    match self.reading.get_mut(&relay) {
+                        Some((_, found)) => *found = true,
+                        None => {
+                            self.live.insert(relay);
+                        }
+                    }
                 }
                 Vec::new()
             }
@@ -482,6 +500,10 @@ impl Machine for Prober {
                     }
                 }
                 for (relay, delay) in start {
+                    let probe = self.probes.entry(relay.clone()).or_default();
+                    if probe.live.is_none() {
+                        probe.live = Some(self.live.contains(&relay));
+                    }
                     let test = &self.tests[&relay];
                     out.push(Action::Subscribe {
                         relay: relay.clone(),

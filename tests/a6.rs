@@ -120,6 +120,16 @@ fn the_prober_fetches_writes_and_reads_back() {
         2
     );
     assert!(start.iter().any(|a| matches!(a, Action::Publish { relay, id, .. } if relay == "wss://a.example" && id == "t1")));
+    // Subscribed before publishing.
+    let sub_at = start
+        .iter()
+        .position(|a| matches!(a, Action::Subscribe { .. }))
+        .unwrap();
+    let pub_at = start
+        .iter()
+        .position(|a| matches!(a, Action::Publish { .. }))
+        .unwrap();
+    assert!(sub_at < pub_at);
     p.handle(Input::Nip11 {
         relay: "wss://a.example".into(),
         json: Some(OPEN.into()),
