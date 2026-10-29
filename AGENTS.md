@@ -9,12 +9,16 @@ client so that strategies can be compared and swapped:
 
 - `AS`: what the iOS and Android apps do today (each app's list and rule);
 - `A0` to `A6`: the alternatives of
-  `../bitchat-envelope/Documents/geohash-relays-requirements-and-alternatives.md`, later.
+  [docs/geohash-relays-requirements-and-alternatives.md](docs/geohash-relays-requirements-and-alternatives.md), later
+  (branch `strategies`, work in progress).
 
-It serves `bitchat-console` first (decision D2 of `../bitchat-console/SPECIFICATIONS.md`),
-`bitchat-geohash` later, and is meant to be proposed to the BitChat apps (iOS, Android), hence
-the public-domain licence (Unlicense, like the iOS app). Progress is tracked in
-`../bitchat-console/PLAN_ET1.md` (lot 1).
+It serves [bitchat-console](https://github.com/wvmscs/bitchat-console) first (its decision
+D2), [bitchat-geohash](https://github.com/wvmscs/bitchat-geohash) too, and is meant to be
+proposed to the BitChat apps (iOS, Android), hence the public-domain licence (Unlicense, like
+the iOS app). Progress is tracked in bitchat-console's `PLAN_ET1.md` (lot 1).
+
+Rules that only concern the author's local checkout, if any, are in `AGENTS.local.md`
+(not committed).
 
 ## Constraints
 

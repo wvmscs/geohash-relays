@@ -2,6 +2,21 @@
 
 ## [Unreleased]
 
+## [0.1.1] - 2026-10-29
+
+Public opening: same code as 0.1.0.
+
+### Added
+- The study documents in `docs/` (requirements and alternatives, relay selection corrections,
+  relay list updates, 2026-10-27), copied from an earlier, unpublished prototype.
+
+### Changed
+- README, `AGENTS.md`, rustdoc and comments cite only what a public reader can reach: the
+  documents of `docs/`, GitHub URLs. Rules of the author's local checkout move to
+  `AGENTS.local.md`, not committed.
+
+## [0.1.0] - 2026-10-28
+
 ### Added
 - Relay lists with each app's rules (`RelayDirectory`, `Platform`, `normalize_url`), the list
   URLs and the apps' default relays (`Platform::list_url`, `Platform::default_relays`); ported

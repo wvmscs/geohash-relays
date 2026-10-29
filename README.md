@@ -22,21 +22,22 @@ Distances are great-circle (haversine, radius 6371 km) from the centre of the ce
 
 The `Strategy` trait puts the choice behind one interface: `AppStrategy` (`AS`, today's apps,
 iOS, Android or both) now; the alternatives A0 to A6 of
-`bitchat-envelope/Documents/geohash-relays-requirements-and-alternatives.md` later.
+[docs/geohash-relays-requirements-and-alternatives.md](docs/geohash-relays-requirements-and-alternatives.md) later.
 
 ## Why the two apps drift apart
 
 iOS reads the reviewed `relays/online_relays_gps.csv` of the bitchat repository; Android reads
 the daily, unreviewed `nostr_relays.csv` of georelays. The lists differ, and the rules differ
 (deduplication, tie-break). For the same channel the two apps can choose different relays, and
-then iOS and Android users do not see each other. Measured on real lists: see bitchat-geohash
-and bitchat-envelope `Documents/relay-selection-corrections.md`.
+then iOS and Android users do not see each other. Measured on real lists: see
+[relay-selection-corrections.md](docs/relay-selection-corrections.md) and
+[docs/geohash-relays-updates.md](docs/geohash-relays-updates.md).
 
 ## Tests
 
 `cargo test`: the expected choices on the frozen lists of `tests/data/` are those of
-bitchat-geohash and of bitchat-envelope's `geohash_map`, after the selection corrections of
-27/10/2026. The neighbours are checked against the `geohash` crate.
+bitchat-geohash and of an earlier prototype, after the selection corrections of 27/10/2026
+([docs/relay-selection-corrections.md](docs/relay-selection-corrections.md)). The neighbours are checked against the `geohash` crate.
 
 ## Licence
 

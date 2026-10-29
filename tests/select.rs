@@ -2,9 +2,9 @@
 // SPDX-License-Identifier: Unlicense OR 0BSD
 
 //! Relay lists and the apps' relay choice, on the frozen lists. Expected
-//! choices are the output of `bitchat-envelope`'s `geohash_map --no-probe`
+//! choices are the output of an earlier prototype's `geohash_map --no-probe`
 //! on the same files, after its relay selection corrections
-//! (`Documents/relay-selection-corrections.md`, 27/10/2026, lot 11 bis).
+//! (`docs/relay-selection-corrections.md`, 27/10/2026, lot 11 bis).
 
 use geohash_relays::Error;
 use geohash_relays::directory::{Platform, RelayDirectory, normalize_url};

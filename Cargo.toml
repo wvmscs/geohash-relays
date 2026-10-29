@@ -3,14 +3,13 @@
 
 [package]
 name = "geohash-relays"
-version = "0.1.0"
+version = "0.1.1"
 edition = "2024"
 description = "Relay selection for BitChat location channels (geohash): the iOS and Android rules, neighbours, and pluggable strategies."
 license = "Unlicense OR 0BSD"
 repository = "https://github.com/wvmscs/geohash-relays"
 
-# Own workspace: the crate builds on its own, also inside the local `Nostr/`
-# directory, whose workspace does not list it.
+# Own workspace: the crate builds on its own, also inside another workspace.
 [workspace]
 
 [dependencies]

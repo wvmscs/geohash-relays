@@ -6,7 +6,7 @@
 //! A geohash channel has no server of its own: each app picks the relays
 //! closest to the channel's centre from a relay list. This crate holds that
 //! choice, isolated so that other strategies can replace it (see
-//! `bitchat-envelope/Documents/geohash-relays-requirements-and-alternatives.md`):
+//! `docs/geohash-relays-requirements-and-alternatives.md`):
 //!
 //! * `AS`: what the apps do today, iOS and Android rules ([`AppStrategy`]);
 //! * `A0` to `A6`: the alternatives, later.

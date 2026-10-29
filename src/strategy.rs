@@ -3,8 +3,8 @@
 
 //! How a client picks the relays of a channel, behind one interface, so that
 //! the apps' rule (`AS`) and the alternatives (`A0` to `A6`, later) can be
-//! swapped and compared. See bitchat-envelope
-//! `Documents/geohash-relays-requirements-and-alternatives.md`.
+//! swapped and compared. See
+//! `docs/geohash-relays-requirements-and-alternatives.md`.
 
 use crate::directory::RelayDirectory;
 use crate::error::Result;
