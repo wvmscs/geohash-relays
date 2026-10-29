@@ -85,6 +85,9 @@ pub const A0_SHARED_CANDIDATES: &[&str] = &[
     "wss://offchain.pub",
 ];
 
+/// A relay found failed is avoided this long, then tried again.
+pub const A0_HEALTH_TTL_SECS: i64 = 600;
+
 // ---------------------------------------------------------------- A1 (G8)
 
 /// Relays kept per cell.

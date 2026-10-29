@@ -14,4 +14,6 @@ repository = "https://github.com/wvmscs/geohash-relays"
 [workspace]
 
 [dependencies]
+# SHA-256: list digests (A0), rendezvous hashing (A1).
+sha2 = "0.10"
 thiserror = "2"

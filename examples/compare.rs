@@ -1,14 +1,16 @@
 // SPDX-FileCopyrightText: 2026 William VITAL, FR (wvmscs)
 // SPDX-License-Identifier: Unlicense OR 0BSD
 
-//! The comparison bench on the frozen lists (lot 1 of `PLAN_ET1.md`):
+//! The comparison bench on the frozen lists (`PLAN_ET1.md`, lot 1 and each
+//! strategy's lot):
 //!
 //!   cargo run --release --example compare
 //!
-//! An iOS peer (iOS list, its strategy) against an Android peer (Android
-//! list, its strategy), for each strategy; then the load, the stability
-//! between two versions of each list, the failures and the capture cost.
+//! Each strategy has two peers that should meet: for `AS`, an iOS peer and
+//! an Android peer (two lists, two rules); for the strategies with one
+//! shared list, two peers whose copies are a month apart (the list moves).
 
+use geohash_relays::a0::SharedStrategy;
 use geohash_relays::bench::{self, Rng};
 use geohash_relays::params::BENCH_SEED;
 use geohash_relays::{AppStrategy, Platform, RelayDirectory, RelayHealth, Strategy};
@@ -26,60 +28,90 @@ const CITIES: &[(&str, &str)] = &[
     ("London", "gcpvj"),
 ];
 
-type Make = Box<dyn Fn(&RelayDirectory, &RelayHealth) -> Box<dyn Strategy>>;
+type Peer = Box<dyn Fn(&RelayHealth) -> Box<dyn Strategy>>;
+type FromList = Box<dyn Fn(&str, Platform) -> Option<Box<dyn Strategy>>>;
 
-/// The strategies compared: name, and how a peer builds it from its list.
-fn strategies() -> Vec<(&'static str, Make)> {
-    vec![(
-        "AS",
-        Box::new(|d: &RelayDirectory, _: &RelayHealth| {
-            Box::new(AppStrategy::new(
-                Some(d.clone()),
-                None,
-                geohash_relays::Apps::Both,
-            )) as Box<dyn Strategy>
-        }),
-    )]
+/// A strategy in the bench.
+struct Contender {
+    name: &'static str,
+    /// The two peers that should meet, knowing these failed relays.
+    a: Peer,
+    b: Peer,
+    /// A peer on a given list (stability, capture); `None`: the strategy
+    /// does not read that kind of list.
+    on_list: FromList,
+}
+
+fn contenders() -> Vec<Contender> {
+    vec![
+        Contender {
+            name: "AS",
+            a: Box::new(|_| Box::new(AppStrategy::ios(RelayDirectory::parse(IOS, Platform::Ios)))),
+            b: Box::new(|_| {
+                Box::new(AppStrategy::android(RelayDirectory::parse(
+                    ANDROID,
+                    Platform::Android,
+                )))
+            }),
+            on_list: Box::new(|csv, p| {
+                Some(Box::new(AppStrategy::new(
+                    Some(RelayDirectory::parse(csv, p)),
+                    None,
+                    geohash_relays::Apps::Both,
+                )))
+            }),
+        },
+        Contender {
+            name: "A0",
+            a: Box::new(|h| Box::new(SharedStrategy::new(IOS).with_health(h.clone()))),
+            b: Box::new(|h| Box::new(SharedStrategy::new(IOS_OLD).with_health(h.clone()))),
+            on_list: Box::new(|csv, p| {
+                (p == Platform::Ios)
+                    .then(|| Box::new(SharedStrategy::new(csv)) as Box<dyn Strategy>)
+            }),
+        },
+    ]
 }
 
 fn main() {
-    let ios = RelayDirectory::parse(IOS, Platform::Ios);
-    let ios_old = RelayDirectory::parse(IOS_OLD, Platform::Ios);
-    let android = RelayDirectory::parse(ANDROID, Platform::Android);
-    let android_old = RelayDirectory::parse(ANDROID_OLD, Platform::Android);
     let p2 = bench::all_cells(2);
     let p5 = bench::sample_cells(5, 500, &mut Rng::new(BENCH_SEED));
     let healthy = RelayHealth::new();
 
     println!(
-        "| Strategy | Rendezvous iOS/Android p2 | p5 | Servers (p2) | Busiest (cells) | Cells < 5 servers | Stability iOS | Stability Android | 1 dead | 2 dead | 3 dead |"
+        "| Strategy | Rendezvous p2 | p5 | Servers (p2) | Busiest (cells) | Cells < 5 servers | Stability iOS list | Stability Android list | 1 dead | 2 dead | 3 dead |"
     );
     println!("|---|---|---|---|---|---|---|---|---|---|---|");
-    for (name, make) in strategies() {
-        let (si, sa) = (make(&ios, &healthy), make(&android, &healthy));
-        let r2 = bench::rendezvous(si.as_ref(), sa.as_ref(), &p2).unwrap();
-        let r5 = bench::rendezvous(si.as_ref(), sa.as_ref(), &p5).unwrap();
-        let l = bench::load(sa.as_ref(), &p2, 5).unwrap();
-        let st_i = bench::stability(make(&ios_old, &healthy).as_ref(), si.as_ref(), &p5).unwrap();
-        let st_a =
-            bench::stability(make(&android_old, &healthy).as_ref(), sa.as_ref(), &p5).unwrap();
+    for c in contenders() {
+        let (a, b) = ((c.a)(&healthy), (c.b)(&healthy));
+        let r2 = bench::rendezvous(a.as_ref(), b.as_ref(), &p2).unwrap();
+        let r5 = bench::rendezvous(a.as_ref(), b.as_ref(), &p5).unwrap();
+        let l = bench::load(b.as_ref(), &p2, 5).unwrap();
+        let stab =
+            |old: &str, new: &str, p: Platform| match ((c.on_list)(old, p), (c.on_list)(new, p)) {
+                (Some(o), Some(n)) => format!(
+                    "{:.2}",
+                    bench::stability(o.as_ref(), n.as_ref(), &p5).unwrap()
+                ),
+                _ => "—".into(),
+            };
         let mut dead = Vec::new();
         for d in 1..=3 {
             let mut rng = Rng::new(BENCH_SEED + d as u64);
-            let r = bench::failures(&|h| make(&ios, h), &|h| make(&android, h), &p5, d, &mut rng)
-                .unwrap();
+            let r = bench::failures(&|h| (c.a)(h), &|h| (c.b)(h), &p5, d, &mut rng).unwrap();
             dead.push(format!("{:.0} %", 100.0 * r.ratio()));
         }
         println!(
-            "| {name} | {:.1} % | {:.1} % | {} | {} ({}) | {} | {:.2} | {:.2} | {} |",
+            "| {} | {:.1} % | {:.1} % | {} | {} ({}) | {} | {} | {} | {} |",
+            c.name,
             100.0 * r2.ratio(),
             100.0 * r5.ratio(),
             l.servers,
             l.busiest.trim_start_matches("wss://"),
             l.max_cells,
             l.below_threshold,
-            st_i,
-            st_a,
+            stab(IOS_OLD, IOS, Platform::Ios),
+            stab(ANDROID_OLD, ANDROID, Platform::Android),
             dead.join(" | "),
         );
     }
@@ -94,18 +126,28 @@ fn main() {
         CITIES.iter().map(|c| c.0).collect::<Vec<_>>().join(" | ")
     );
     println!("|---|{}", "---|".repeat(CITIES.len()));
-    for (name, make) in strategies() {
+    for c in contenders() {
         let mut row = Vec::new();
         for (_, cell) in CITIES {
             let mut both = Vec::new();
-            for (csv, dir, platform) in [
-                (IOS, &ios, Platform::Ios),
-                (ANDROID, &android, Platform::Android),
-            ] {
-                let point = bench::nearest_point(dir, cell).unwrap().unwrap();
+            for (csv, platform) in [(IOS, Platform::Ios), (ANDROID, Platform::Android)] {
+                if (c.on_list)(csv, platform).is_none() {
+                    both.push("—".to_owned());
+                    continue;
+                }
+                let dir = RelayDirectory::parse(csv, platform);
+                let point = bench::nearest_point(&dir, cell).unwrap().unwrap();
                 // Names that win iOS's alphabetical tie-break.
                 let cost = bench::capture_cost(
-                    &|d| make(d, &healthy),
+                    &|d| {
+                        // The strategy on the list with the attacker's lines.
+                        let text: String = d
+                            .relays()
+                            .iter()
+                            .map(|r| format!("{},{},{}\n", r.url, r.lat, r.lon))
+                            .collect();
+                        (c.on_list)(&text, platform).unwrap()
+                    },
                     csv,
                     platform,
                     cell,
@@ -118,6 +160,6 @@ fn main() {
             }
             row.push(both.join(" / "));
         }
-        println!("| {name} | {} |", row.join(" | "));
+        println!("| {} | {} |", c.name, row.join(" | "));
     }
 }
