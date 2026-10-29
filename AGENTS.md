@@ -36,9 +36,10 @@ Rules that only concern the author's local checkout, if any, are in `AGENTS.loca
 - Reproducible tests: frozen relay lists, never downloaded.
 - Code, comments and rustdoc in English.
 - Own git repository (`origin` = `git@github.com:wvmscs/geohash-relays.git`), own
-  `[workspace]`. `main` and the tag `v0.1.0` stay as they are (tagged versions never change,
-  no new tags); the strategies are developed on the `strategies` branch, and pull requests
-  are rebased on it.
+  `[workspace]`. The strategies are developed on the `strategies` branch (work in progress),
+  and pull requests are rebased on it; it is **not merged into `main`** until the user
+  decides so. `main` gets only fixes made from `main` itself (for example `v0.1.1`, the
+  public opening, same code as `v0.1.0`), tagged once checked. Tagged versions never change.
 
 ## Commands
 
