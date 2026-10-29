@@ -138,6 +138,11 @@ fn the_prober_fetches_writes_and_reads_back() {
         relay: "wss://b.example".into(),
         json: Some(AUTH.into()),
     });
+    // Sent back live, before any read-back: R9 met.
+    p.handle(Input::Event {
+        relay: "wss://a.example".into(),
+        event: test_event("t1"),
+    });
     p.handle(Input::Ok {
         relay: "wss://a.example".into(),
         id: "t1".into(),
@@ -165,7 +170,7 @@ fn the_prober_fetches_writes_and_reads_back() {
     let q = p.qualification();
     assert!(!q.shared);
     let a = &q.verdicts["wss://a.example"];
-    assert!(a.usable() && a.probed);
+    assert!(a.usable() && a.probed, "{a:?}");
     assert!(a.warnings.contains(&Finding::Retention(3600)));
     assert_eq!(reqs(&q.verdicts["wss://b.example"].refusals), ["R5"]);
     let _ = Health::Dead;
