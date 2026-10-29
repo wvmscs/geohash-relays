@@ -87,8 +87,8 @@ retenues, attente de `OK`, `AUTH`, `CLOSED`) font l'objet de PR au lot 12.
 | 6 | `a2` : annuaire des moniteurs NIP-66 | ✅ |
 | 7 | `a3` : relais annoncés dans les présences | ✅ |
 | 8 | `a5` : fédération synchronisée, détection des omissions | ✅ (essai réel au lot 9) |
-| 9 | Mesures réelles du §7 (avec l'utilisateur) | ⬜ |
-| 10 | Évaluation des stratégies et dossier de proposition aux apps | ⬜ |
+| 9 | Mesures réelles du §7 (avec l'utilisateur) | ⏳ (lecture seule faite) |
+| 10 | Évaluation des stratégies et dossier de proposition aux apps | ✅ (à relire) |
 | 11 | Portages Swift et Kotlin des stratégies retenues | ⬜ |
 | 12 | PR vers bitchat et bitchat-android : intégration, attente de `OK`, `AUTH`, `CLOSED` | ⬜ |
 
@@ -328,17 +328,37 @@ Fait : `a5::{Federation, Comparer, omissions, sync_filter}`, `docs/federation.md
 durée de vie des éphémères ≥ 1 h, R11) ; console `--strategy A5 --federation`,
 `--federation-check`.
 
-### Lot 9 : mesures réelles ⬜ (avec l'utilisateur)
+### Lot 9 : mesures réelles ⏳ (lecture seule faite ; le reste avec l'utilisateur)
 
-- [ ] Questions 1 à 6 du §7 avec les lots 2, 4 et 6 ; résultats datés ici ; texte proposé
-      pour une version 0.3 du document d'exigences (bitchat-envelope en lecture seule).
+- [x] Question 3 (NIP-11), par Tor, 467 relais des deux listes, deux passages : 323 à 352
+      documents ; 26 à 28 relais inutilisables par leur seule déclaration (21–22 R6 écritures
+      restreintes, 8–9 R5 NIP-42, 3 R6 paiement, 1 R7) ; 81–93 avertissements R8, 7 R13.
+      Deux défauts trouvés et corrigés : 467 circuits Tor d'un coup font échouer le proxy
+      (au plus 16 à la fois, `A6_CONCURRENCY`) ; des serveurs ne répondent jamais (délai de
+      20 s, `NIP11_TIMEOUT`).
+- [x] Question 6 (moniteurs NIP-66) : des moniteurs actifs publient leurs annonces 10166 sur
+      `relay.nostr.watch`, `monitorlizard.nostr1.com`, `relaypag.es` et sur de grands relais ;
+      quelques-uns testent l'écriture (`c: write`), la plupart seulement `open`, `read`,
+      `nip11`.
+- [x] Question 5 (débit), échantillon : `u0` sur `nostr.sathoarder.com`, 7 messages et 203
+      présences en une heure (≈ 3,5 événements par minute) ; la limite de 60 par minute d'A4
+      suffit.
+- [x] Question 4 (coût de capture) : banc du lot 1.
+- [ ] Questions 1 et 2 (rétention, accès par Tor) : écrivent sur les relais :
+      `bitchat-console --qualify-probe`, **sur décision de l'utilisateur**.
+- [ ] A5 réel : `relay.famillevital.club` et un strfry local synchronisés (lot 8).
 - [ ] Essai avec l'app BitChat de l'utilisateur (téléportation) : A4 relie un pair iOS et un
       pair Android sans relais commun.
+- [ ] Texte proposé pour une version 0.3 du document d'exigences (bitchat-envelope en lecture
+      seule) : à rédiger une fois les questions 1 et 2 mesurées.
 
-### Lot 10 : évaluation et proposition ⬜
+### Lot 10 : évaluation et proposition ✅ (à relire par l'utilisateur)
 
-- [ ] Tableau final du banc et des mesures, stratégies retenues.
-- [ ] README : une section par stratégie, avec ses résultats.
+- [x] Tableau final du banc et des mesures : `docs/evaluation.md`. Stratégies **proposées**
+      pour la suite (à valider) : A4 tout de suite ; A0 + A6 pour les deux apps ; A1 + A2 puis
+      A3 en cible ; A5 en option d'infrastructure. Portages proposés au lot 11 : A0, A6, A1
+      (vecteurs figés), le tag d'A3.
+- [x] README : une section par stratégie, avec ses résultats.
 
 ### Lot 11 : portages Swift et Kotlin ⬜
 
@@ -386,3 +406,7 @@ durée de vie des éphémères ≥ 1 h, R11) ; console `--strategy A5 --federati
 - 29/10/2026 : lot 6 fait (A2).
 - 29/10/2026 : lot 7 fait (A3) ; compatibilité Android vérifiée.
 - 29/10/2026 : lot 8 fait (A5) ; essai réel avec strfry reporté au lot 9.
+- 29/10/2026 : lot 9, mesures en lecture seule (NIP-11 par Tor, moniteurs NIP-66, débit) ; deux
+  défauts corrigés (concurrence des circuits Tor, serveurs muets). Lot 10 : évaluation et
+  proposition dans `docs/evaluation.md`, README par stratégie. Restent avec l'utilisateur :
+  sondes en écriture, strfry réel, essai avec l'app, choix des stratégies à porter.

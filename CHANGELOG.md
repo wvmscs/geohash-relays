@@ -10,6 +10,8 @@
   `Selected` and `GeoRelay` move to `strategy`.
 
 ### Added
+- Lot 10: `docs/evaluation.md` (bench, real-network measures, proposal), README section per
+  strategy. Lot 9: `params::A6_CONCURRENCY`, `params::comm::NIP11_TIMEOUT`.
 - `a5` (lot 8): `Federation` (read 2 members, write 1, chosen per cell by HRW), `sync_filter`,
   `omissions`, `Comparer` machine; `docs/federation.md` (strfry router and sync, NIP-77).
 - `a3` (lot 7): `announce_tags` (`["relay", url]`, at most 5), `PresenceBook` (2 distinct keys,
