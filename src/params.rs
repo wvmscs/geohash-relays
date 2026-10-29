@@ -217,6 +217,9 @@ pub mod comm {
     pub const MAX_LIST_BYTES: usize = 2 * 1024 * 1024;
     /// `User-Agent` of the HTTP requests (relay lists, NIP-11).
     pub const HTTP_USER_AGENT: &str = "bitchat-console";
+    /// A NIP-11 document must come within this time (A6; found in lot 9:
+    /// some servers never answer, and hold a place).
+    pub const NIP11_TIMEOUT: Duration = Duration::from_secs(20);
     /// Largest NIP-11 document accepted, in bytes.
     pub const MAX_NIP11_BYTES: usize = 64 * 1024;
     /// iOS receive limits (`NostrRelayManager.swift`): tags per event…
