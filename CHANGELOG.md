@@ -10,6 +10,9 @@
   `Selected` and `GeoRelay` move to `strategy`.
 
 ### Added
+- `a1` (lot 5): `HrwStrategy` (salted rendezvous hashing, k = 5, p = 4, epochs of a UTC day,
+  writes to both epochs within an hour of a change), `score`, `Salts`, `epoch_of`; frozen
+  score vectors (checked against Python `hashlib`), example `hrw_vectors`.
 - `a6` (lot 4): `Nip11` (declaration), `Probe` (test results), `Verdict` (refusals R1, R2, R5,
   R6, R7, R9; warnings R8, R11, R13; a probe prevails), `Qualification` (a local filter only
   with A0: `SharedStrategy::qualified`; a shared one for any list), `Prober` (the probe

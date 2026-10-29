@@ -11,6 +11,7 @@
 //! shared list, two peers whose copies are a month apart (the list moves).
 
 use geohash_relays::a0::SharedStrategy;
+use geohash_relays::a1::{HrwStrategy, Salts};
 use geohash_relays::bench::{self, Rng};
 use geohash_relays::params::BENCH_SEED;
 use geohash_relays::{AppStrategy, Platform, RelayDirectory, RelayHealth, Strategy};
@@ -70,7 +71,20 @@ fn contenders() -> Vec<Contender> {
                     .then(|| Box::new(SharedStrategy::new(csv)) as Box<dyn Strategy>)
             }),
         },
+        Contender {
+            name: "A1 (iOS / Android lists)",
+            a: Box::new(|_| Box::new(salted(&RelayDirectory::parse(IOS, Platform::Ios)))),
+            b: Box::new(|_| Box::new(salted(&RelayDirectory::parse(ANDROID, Platform::Android)))),
+            on_list: Box::new(|csv, p| {
+                Some(Box::new(salted(&RelayDirectory::parse(csv, p))) as Box<dyn Strategy>)
+            }),
+        },
     ]
+}
+
+/// A1 with a salt the attacker did not know in advance.
+fn salted(d: &RelayDirectory) -> HrwStrategy {
+    HrwStrategy::new(d).with_salts(Salts::Fixed(vec![0x6b, 0x2f]), 0)
 }
 
 fn main() {
