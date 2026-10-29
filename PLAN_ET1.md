@@ -83,7 +83,7 @@ retenues, attente de `OK`, `AUTH`, `CLOSED`) font l'objet de PR au lot 12.
 | 2 | `a4` : republication entre les ensembles iOS et Android | ✅ |
 | 3 | `a0` : liste et règle uniques, écrire large / lire étroit, remplacement, relais partagés | ✅ |
 | 4 | `a6` : qualification NIP-11 et sondes | ✅ |
-| 5 | `a1` : HRW salé | ⬜ |
+| 5 | `a1` : HRW salé | ✅ |
 | 6 | `a2` : annuaire des moniteurs NIP-66 | ⬜ |
 | 7 | `a3` : relais annoncés dans les présences | ⬜ |
 | 8 | `a5` : fédération synchronisée, détection des omissions | ⬜ |
@@ -251,13 +251,30 @@ avertissement R11. Une redirection (R2) ou un certificat refusé (R1) arrêtent 
 pour de bon (`-net`). Console : `--qualify` (NIP-11 seulement), `--qualify-probe` (écrit un
 événement de test par relais, sur action de l'utilisateur), rapport `qualification.md`.
 
-### Lot 5 : `a1`, HRW salé ⬜
+### Lot 5 : `a1`, HRW salé ✅
 
-- [ ] Règle (G8) : score, *k* meilleurs, préfixe, sel, époque et chevauchement.
-- [ ] Vecteurs de score figés (pour le lot 11).
-- [ ] Tests : répartition uniforme, stabilité à l'ajout d'une entrée, voisins qui partagent
+- [x] Règle (G8) : score, *k* meilleurs, préfixe, sel, époque et chevauchement.
+- [x] Vecteurs de score figés (pour le lot 11).
+- [x] Tests : répartition uniforme, stabilité à l'ajout d'une entrée, voisins qui partagent
       leurs relais ; banc : capture sans sel et avec sel.
-- [ ] bitchat-console : `--hrw-salt <hex>`.
+- [x] bitchat-console : `--hrw-salt <hex>`.
+
+Fait : `a1::{HrwStrategy, score, Salts, epoch_of}` ; score
+`SHA-256(sel ‖ 0 ‖ préfixe ‖ 0 ‖ url)`, 8 premiers octets gros-boutiens (les octets nuls
+séparent les champs) ; vecteurs vérifiés par une implémentation Python indépendante.
+Console : `--strategy A1 --hrw-salt <hex>`. Banc :
+
+| Mesure | `AS` | `A0` | `A1` (liste iOS / liste Android) |
+|---|---|---|---|
+| Rendez-vous p2 ; p5 | 93,3 ; 91,8 % | 100 ; 100 % | 98,4 ; 97,0 % |
+| Serveurs utilisés ; le plus chargé (cellules, p2) | 119 ; 361 | 136 ; 326 | **332 ; 30** |
+| Stabilité liste iOS ; Android | 0,47 ; 0,43 | 0,47 ; — | **0,62 ; 0,78** |
+| 1, 2, 3 relais morts | 87, 80, 75 % | 100, 100, 100 % | 96, 93, 90 % |
+| Capture (iOS / Android) | 5 / > 60 | 5 / — | **> 60 / > 60** ; sans sel, 5 noms calculés à l'avance suffisent |
+
+Remarque : avec A1, le serveur le plus chargé est un tunnel temporaire
+(`*.trycloudflare.com`) : la qualification (A6) ou les moniteurs (A2) doivent écarter ce genre
+d'entrée.
 
 ### Lot 6 : `a2`, annuaire NIP-66 ⬜
 
@@ -342,3 +359,4 @@ pour de bon (`-net`). Console : `--qualify` (NIP-11 seulement), `--qualify-probe
 - 29/10/2026 : lot 2 fait (A4) ; mesure du débit réel reportée au lot 9.
 - 29/10/2026 : lot 3 fait (A0).
 - 29/10/2026 : lot 4 fait (A6).
+- 29/10/2026 : lot 5 fait (A1).
