@@ -1,0 +1,8 @@
+# SPDX-FileCopyrightText: 2026 William VITAL, FR (wvmscs)
+# SPDX-License-Identifier: Unlicense OR 0BSD
+
+blank_issues_enabled: false
+contact_links:
+  - name: Security vulnerability
+    url: https://github.com/wvmscs/geohash-relays/security/advisories/new
+    about: Report it privately, not in a public issue.

@@ -14,7 +14,8 @@ client so that strategies can be compared and swapped:
 It serves `bitchat-console` first (decision D2 of `../bitchat-console/SPECIFICATIONS.md`),
 `bitchat-geohash` later, and is meant to be proposed to the BitChat apps (iOS, Android), hence
 the public-domain licence (Unlicense, like the iOS app). Progress is tracked in
-`../bitchat-console/PLAN_ET1.md` (lot 1).
+`../bitchat-console/PLAN_ET1.md` (lot 1, `AS`) and in `PLAN_ET1.md` (the alternatives A0 to
+A6).
 
 ## Constraints
 
