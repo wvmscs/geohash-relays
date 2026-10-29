@@ -132,6 +132,11 @@ pub const A4_BRIDGE_MAX_AGE_SECS: i64 = 900;
 pub const A4_PER_MINUTE: u32 = 60;
 /// Event ids remembered for deduplication.
 pub const A4_SEEN_CAPACITY: usize = 10_000;
+/// An event is republished this long after it is first seen: the relays
+/// that already have it have time to send it too.
+pub const A4_SETTLE_SECS: i64 = 3;
+/// History asked for at subscription (the apps read `limit: 200`).
+pub const A4_HISTORY_LIMIT: u32 = 200;
 
 // ---------------------------------------------------------------- A5 (G11)
 
