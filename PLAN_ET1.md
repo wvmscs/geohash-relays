@@ -81,7 +81,7 @@ retenues, attente de `OK`, `AUTH`, `CLOSED`) font l'objet de PR au lot 12.
 | 0 | Restructuration : 8 modules, crate `geohash-relays-net` (GPL, 3 features exclusives, ports, code de communication de la console), `Strategy` et `Selected` généralisés | ✅ |
 | 1 | Banc de comparaison : rendez-vous iOS/Android, charge, stabilité, coût de capture, pannes | ✅ |
 | 2 | `a4` : republication entre les ensembles iOS et Android | ✅ |
-| 3 | `a0` : liste et règle uniques, écrire large / lire étroit, remplacement, relais partagés | ⬜ |
+| 3 | `a0` : liste et règle uniques, écrire large / lire étroit, remplacement, relais partagés | ✅ |
 | 4 | `a6` : qualification NIP-11 et sondes | ⬜ |
 | 5 | `a1` : HRW salé | ⬜ |
 | 6 | `a2` : annuaire des moniteurs NIP-66 | ⬜ |
@@ -206,15 +206,27 @@ stratégies) ; `geohash-relays-net::runner` (signatures vérifiées avant l'auto
 `--republish` qui suit la zone. Essais : deux republieurs sur deux relais, un événement
 republié une fois par republieur au plus, jamais renvoyé à sa source.
 
-### Lot 3 : `a0`, correction du modèle actuel ⬜
+### Lot 3 : `a0`, correction du modèle actuel ✅
 
-- [ ] Règle (G7) : ordre partagé ; `write` = *w* premiers, `read` = *r* premiers joignables ;
+- [x] Règle (G7) : ordre partagé ; `write` = *w* premiers, `read` = *r* premiers joignables ;
       remplacement par le suivant ; relais partagés en option (`includeDefaults` d'Android).
-- [ ] Liste versionnée : numéro et empreinte SHA-256 ; signature vérifiée par l'hôte.
-- [ ] État des relais (panne, `AUTH`, `CLOSED`, redirection) lu par les ports quand la
+- [x] Liste versionnée : numéro et empreinte SHA-256 ; signature vérifiée par l'hôte.
+- [x] État des relais (panne, `AUTH`, `CLOSED`, redirection) lu par les ports quand la
       sous les trois features (G13).
-- [ ] Propriété testée : deux pairs qui ont perdu chacun moins de *r* relais parmi les *w*
+- [x] Propriété testée : deux pairs qui ont perdu chacun moins de *r* relais parmi les *w*
       gardent un relais commun ; contre-exemple sans « écrire large ».
+
+Fait : `a0::SharedStrategy` (règle iOS, w = 8, r = 5, `with_health`, `with_shared`,
+`with_widths`), `a0::ListVersion` (SHA-256 des lignes normalisées) ; console `--strategy A0`,
+`--shared-relays`, état des relais (mort après 3 échecs ou refus d'authentification, oublié
+après 10 min), stratégie reconstruite à chaud. Banc (`compare`) :
+
+| Mesure | `AS` | `A0` (copies de liste à un mois d'écart) |
+|---|---|---|
+| Rendez-vous, précision 2 ; précision 5 | 93,3 % ; 91,8 % | **100 % ; 100 %** |
+| Cellules à moins de 5 serveurs (précision 2) | 322 | 0 |
+| Rendez-vous avec 1, 2, 3 relais morts | 87, 80, 75 % | **100, 100, 100 %** |
+| Coût de capture (iOS), quatre villes | 5 | 5 (A0 ne résiste pas à la capture, comme prévu) |
 
 ### Lot 4 : `a6`, qualification ⬜
 
@@ -319,3 +331,4 @@ republié une fois par republieur au plus, jamais renvoyé à sa source.
   capture), deux versions plus anciennes des listes figées (`tests/data/README.md`), exemple
   `compare`. Les 322 cellules du §4 sont retrouvées.
 - 29/10/2026 : lot 2 fait (A4) ; mesure du débit réel reportée au lot 9.
+- 29/10/2026 : lot 3 fait (A0).

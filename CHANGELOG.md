@@ -10,6 +10,9 @@
   `Selected` and `GeoRelay` move to `strategy`.
 
 ### Added
+- `a0` (lot 3): `SharedStrategy` (one list, iOS rule, write 8 / read 5, failed relays
+  replaced, shared relays), `ListVersion` (SHA-256 of the normalised lines). `sha2` dependency.
+  The `compare` example compares strategies with two peers each.
 - `a4` (lot 2): `Republisher`, the republisher machine (one pass per event id, only to the
   relays that did not send it, 3 s to settle, token bucket), `Plan::of`, `Counters`.
 - `bench` (lot 1): rendezvous between two peers, load, stability between two lists, failures,
