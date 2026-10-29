@@ -437,8 +437,11 @@ impl Machine for Prober {
             }
             Input::Failed { relay, health } => {
                 let relay = Self::norm(&relay);
-                if health == crate::strategy::Health::Redirect {
-                    self.probes.entry(relay).or_default().redirected = true;
+                let probe = self.probes.entry(relay).or_default();
+                match health {
+                    crate::strategy::Health::Redirect => probe.redirected = true,
+                    crate::strategy::Health::BadCertificate => probe.bad_certificate = true,
+                    _ => {}
                 }
                 Vec::new()
             }

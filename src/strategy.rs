@@ -124,6 +124,8 @@ pub enum Health {
     AuthRequired,
     /// Answered the WebSocket upgrade with a redirection (R2).
     Redirect,
+    /// Its TLS certificate was refused (R1).
+    BadCertificate,
     /// Refused the client's publications.
     WriteRefused,
 }
