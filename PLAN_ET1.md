@@ -78,7 +78,7 @@ retenues, attente de `OK`, `AUTH`, `CLOSED`) font l'objet de PR au lot 12.
 
 | Lot | Contenu | État |
 |---|---|---|
-| 0 | Restructuration : 8 modules, crate `geohash-relays-net` (GPL, 3 features exclusives, ports, code de communication de la console), `Strategy` et `Selected` généralisés | ⬜ |
+| 0 | Restructuration : 8 modules, crate `geohash-relays-net` (GPL, 3 features exclusives, ports, code de communication de la console), `Strategy` et `Selected` généralisés | ✅ |
 | 1 | Banc de comparaison : rendez-vous iOS/Android, charge, stabilité, coût de capture, pannes | ⬜ |
 | 2 | `a4` : republication entre les ensembles iOS et Android | ⬜ |
 | 3 | `a0` : liste et règle uniques, écrire large / lire étroit, remplacement, relais partagés | ⬜ |
@@ -121,44 +121,44 @@ Toutes validées le 29/10/2026, sauf mention contraire.
 
 ## Lots
 
-### Lot 0 : restructuration ⬜
+### Lot 0 : restructuration ✅
 
-- [ ] Module `as_` : `directory`, `select`, `AppStrategy` déplacés ; deux implémentations
+- [x] Module `as_` : `directory`, `select`, `AppStrategy` déplacés ; deux implémentations
       `as_::Ios` et `as_::Android`, chacune avec sa liste ; `Both` = union (D4 de la console).
       Tests existants inchangés.
-- [ ] Modules `a0` … `a6` vides, documentés (renvoi au §5 du document).
-- [ ] Module `params` (G14) : toutes les constantes, chacune avec sa source ;
+- [x] Modules `a0` … `a6` vides, documentés (renvoi au §5 du document).
+- [x] Module `params` (G14) : toutes les constantes, chacune avec sa source ;
       `GEO_RELAY_COUNT` déplacé (réexporté à la racine) ; aucune constante ailleurs, dans
       les deux crates.
-- [ ] `Selected` et `Strategy` généralisés (G6) ; contrat « instantané immuable » : quand ses
+- [x] `Selected` et `Strategy` généralisés (G6) ; contrat « instantané immuable » : quand ses
       entrées changent, l'hôte reconstruit la stratégie ; forme commune des automates sans
       E/S (G13 : `Input`, `Action`).
-- [ ] `deny.toml` (licences permises : Unlicense, 0BSD, MIT, Apache-2.0, BSD, ISC,
+- [x] `deny.toml` (licences permises : Unlicense, 0BSD, MIT, Apache-2.0, BSD, ISC,
       Unicode-3.0, Zlib) et `cargo deny check licenses` dans la GitHub Action (G5).
-- [ ] AGENTS.md (G4), README, CHANGELOG, version 0.2.0, `reuse lint`.
+- [x] AGENTS.md (G4), README, CHANGELOG, version 0.2.0, `reuse lint`.
 
 **Crate `geohash-relays-net` (G12)**
 
-- [ ] Squelette : `Cargo.toml` (GPL-3.0-or-later, propre `[workspace]`, dépendance git sur
+- [x] Squelette : `Cargo.toml` (GPL-3.0-or-later, propre `[workspace]`, dépendance git sur
       `geohash-relays`), `LICENSE`, `LICENSES/GPL-3.0-or-later.txt`, `REUSE.toml`, en-têtes
       SPDX, `AGENTS.md` (G4), README, CHANGELOG, GitHub Action (fmt, clippy, tests et
-      `reuse lint` pour chaque feature). Dépôt GitHub créé seulement sur accord de
-      l'utilisateur.
-- [ ] Features `bitchat`, `bitchat-android`, `console`, exclusives (`compile_error!`).
-- [ ] Ports (G2, G3) et port factice pour les tests.
-- [ ] Feature `console` : `Connector`, `Socks5`, `Loopback`, Arti, `relay.rs`, `lists.rs`
+      `reuse lint` pour chaque feature). Dépôt `wvmscs/geohash-relays-net` créé le 29/10/2026
+      (privé), à la demande de l'utilisateur.
+- [x] Features `bitchat`, `bitchat-android`, `console`, exclusives (`compile_error!`).
+- [x] Ports (G2, G3) et port factice pour les tests.
+- [x] Feature `console` : `Connector`, `Socks5`, `Loopback`, Arti, `relay.rs`, `lists.rs`
       déplacés de bitchat-console avec leurs tests (proxy SOCKS5 et relais de test).
-- [ ] Features `bitchat` et `bitchat-android` : comportement de connexion de chaque app
+- [x] Features `bitchat` et `bitchat-android` : comportement de connexion de chaque app
       reproduit (reconnexion, fin d'historique), source citée, **plus** attente de `OK`,
       `AUTH` NIP-42 et `CLOSED` (G13) ; Tor au choix (G4).
 
 **Clients**
 
-- [ ] bitchat-console : dépend de `geohash-relays-net` (feature `console`) ; modules déplacés
+- [x] bitchat-console : dépend de `geohash-relays-net` (feature `console`) ; modules déplacés
       retirés ; stratégie remplaçable à chaud ; option `--strategy AS|A0|…` ; tous ses tests
       verts.
-- [ ] bitchat-geohash : dépend de `geohash-relays-net` (feature `console`) si elle a besoin de
-      communication, sinon reste sur `geohash-relays` seule.
+- [x] bitchat-geohash : n'a pas besoin de communication partagée (carte en lecture seule, son
+      propre écouteur) : reste sur `geohash-relays` seule, au tag `v0.1.0`.
 
 ### Lot 1 : banc de comparaison ⬜
 
@@ -288,3 +288,9 @@ Toutes validées le 29/10/2026, sauf mention contraire.
   feature `console` ; G13 : `OK`, `AUTH`, `CLOSED` gérés par les features `bitchat` et
   `bitchat-android`, PR Swift et Kotlin au lot 12 (ajouté) ; G14 ajoutée (constantes dans
   le seul module `params`).
+- 29/10/2026 : `v0.1.0` posé sur `main` (inchangé depuis) ; travaux sur la branche
+  `strategies`. Lot 0 fait : `as_`, `a0` … `a6`, `params`, `sansio`, `Selected` générique
+  (26 tests) ; crate `geohash-relays-net` (18 tests par feature, `arti` compilé, `cargo deny`
+  propre) ; bitchat-console sur `-net` (61 tests, `set_strategy` à chaud, `--strategy`) ;
+  bitchat-geohash reste au tag `v0.1.0`. Les dépendances `strategies` et `main` des crates
+  privées passent par HTTPS et la ligne de commande git.
