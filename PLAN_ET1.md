@@ -80,7 +80,7 @@ retenues, attente de `OK`, `AUTH`, `CLOSED`) font l'objet de PR au lot 12.
 |---|---|---|
 | 0 | Restructuration : 8 modules, crate `geohash-relays-net` (GPL, 3 features exclusives, ports, code de communication de la console), `Strategy` et `Selected` généralisés | ✅ |
 | 1 | Banc de comparaison : rendez-vous iOS/Android, charge, stabilité, coût de capture, pannes | ✅ |
-| 2 | `a4` : republication entre les ensembles iOS et Android | ⬜ |
+| 2 | `a4` : republication entre les ensembles iOS et Android | ✅ |
 | 3 | `a0` : liste et règle uniques, écrire large / lire étroit, remplacement, relais partagés | ⬜ |
 | 4 | `a6` : qualification NIP-11 et sondes | ⬜ |
 | 5 | `a1` : HRW salé | ⬜ |
@@ -187,17 +187,24 @@ Résultats `AS` (référence, listes figées : iOS du 26/07, Android du 25/10 ; 
 | Coût de capture (serveurs au point de la ville), iOS | 5 à Paris, New York, San Francisco, Londres |
 | Idem, Android | > 60 : des serveurs ajoutés au même point perdent les égalités (ordre de la liste) ; il faut être géolocalisé plus près que les serveurs en place |
 
-### Lot 2 : `a4`, republication ⬜
+### Lot 2 : `a4`, republication ✅
 
-- [ ] Règle : relais d'une cellule qui n'ont pas un événement signé vu ailleurs ;
+- [x] Règle : relais d'une cellule qui n'ont pas un événement signé vu ailleurs ;
       déduplication par id ; limite par minute (seau à jetons) ; kinds 20000, 20001, 1, 5 ;
       âge maximal (1 h ; 15 min avec le tag `r` du pont).
-- [ ] Mécanisme par les ports : abonnement à l'union des ensembles iOS et Android, envoi
+- [x] Mécanisme par les ports : abonnement à l'union des ensembles iOS et Android, envoi
       vers les seuls manquants, compteurs (republiés, écartés, limite atteinte).
-- [ ] bitchat-console : mode `--republish` (G10).
-- [ ] Tests : port factice puis relais de test « iOS » et « Android » séparés ; message vu
+- [x] bitchat-console : mode `--republish` (G10).
+- [x] Tests : port factice puis relais de test « iOS » et « Android » séparés ; message vu
       de l'autre côté une seule fois, pas de boucle entre deux republieurs.
-- [ ] Débit réel des cellules actives (question 5 du §7) pour régler la limite.
+- [ ] Débit réel des cellules actives (question 5 du §7) pour régler la limite : **reporté au
+      lot 9** (mesure sur le réseau réel). Limite provisoire : 60 publications par minute.
+
+Fait : `a4::Republisher` (délai de 3 s avant republication, pour laisser les autres relais
+l'envoyer ; une seule passe par id ; seau à jetons), `a4::Plan::of` (union des ensembles de
+stratégies) ; `geohash-relays-net::runner` (signatures vérifiées avant l'automate) ; console
+`--republish` qui suit la zone. Essais : deux republieurs sur deux relais, un événement
+republié une fois par republieur au plus, jamais renvoyé à sa source.
 
 ### Lot 3 : `a0`, correction du modèle actuel ⬜
 
@@ -311,3 +318,4 @@ Résultats `AS` (référence, listes figées : iOS du 26/07, Android du 25/10 ; 
 - 29/10/2026 : lot 1 fait : module `bench` (rendez-vous, charge, stabilité, pannes, coût de
   capture), deux versions plus anciennes des listes figées (`tests/data/README.md`), exemple
   `compare`. Les 322 cellules du §4 sont retrouvées.
+- 29/10/2026 : lot 2 fait (A4) ; mesure du débit réel reportée au lot 9.

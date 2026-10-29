@@ -10,6 +10,8 @@
   `Selected` and `GeoRelay` move to `strategy`.
 
 ### Added
+- `a4` (lot 2): `Republisher`, the republisher machine (one pass per event id, only to the
+  relays that did not send it, 3 s to settle, token bucket), `Plan::of`, `Counters`.
 - `bench` (lot 1): rendezvous between two peers, load, stability between two lists, failures,
   capture cost; deterministic draws (`Rng`, `params::BENCH_SEED`). Example `compare`. Two
   older frozen lists (`tests/data/README.md`).
