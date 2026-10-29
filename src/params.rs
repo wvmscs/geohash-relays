@@ -176,6 +176,9 @@ pub const A6_PROBE_FIRST_READ_SECS: i64 = 5;
 pub const A6_PROBE_CELL: &str = "7zzzzzzz";
 /// A probe gives up on a relay that answers nothing for this long.
 pub const A6_PROBE_TIMEOUT_SECS: i64 = 30;
+/// NIP-11 fetches, and probes, in flight at once (Tor builds one circuit per
+/// relay: hundreds at once fail).
+pub const A6_CONCURRENCY: usize = 16;
 
 // ---------------------------------------------------------------- comparison bench
 

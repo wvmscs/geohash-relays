@@ -20,15 +20,16 @@
 //!   ([`crate::a0::SharedStrategy`]), or when the verdicts are shared
 //!   (published by monitors, A2).
 
-use std::collections::{BTreeMap, HashSet};
+use std::collections::{BTreeMap, HashSet, VecDeque};
 
 use serde_json::Value;
 
 use crate::directory::{RelayDirectory, normalize_url};
 use crate::error::{Error, Result};
 use crate::params::{
-    A6_MAX_POW_BITS, A6_MIN_EPHEMERAL_RETENTION_SECS, A6_MIN_MESSAGE_BYTES, A6_MIN_SUBSCRIPTIONS,
-    A6_PROBE_CELL, A6_PROBE_FIRST_READ_SECS, A6_PROBE_TIMEOUT_SECS, KIND_CHANNEL, KIND_PRESENCE,
+    A6_CONCURRENCY, A6_MAX_POW_BITS, A6_MIN_EPHEMERAL_RETENTION_SECS, A6_MIN_MESSAGE_BYTES,
+    A6_MIN_SUBSCRIPTIONS, A6_PROBE_CELL, A6_PROBE_FIRST_READ_SECS, A6_PROBE_TIMEOUT_SECS,
+    KIND_CHANNEL, KIND_PRESENCE,
 };
 use crate::sansio::{Action, EventMeta, FilterSpec, Input, Machine};
 
@@ -317,6 +318,12 @@ pub struct Prober {
     reading: BTreeMap<String, (i64, bool)>,
     /// Relays that sent the test event on the live subscription.
     live: HashSet<String>,
+    /// Waiting for their turn ([`A6_CONCURRENCY`] at a time): NIP-11
+    /// fetches, probes; and the probes running, since when.
+    nip11_queue: VecDeque<String>,
+    nip11_in_flight: usize,
+    probe_queue: VecDeque<String>,
+    probing: BTreeMap<String, i64>,
     started: i64,
     now: i64,
 }
@@ -341,6 +348,10 @@ impl Prober {
             accepted_at: BTreeMap::new(),
             reading: BTreeMap::new(),
             live: HashSet::new(),
+            nip11_queue: VecDeque::new(),
+            nip11_in_flight: 0,
+            probe_queue: VecDeque::new(),
+            probing: BTreeMap::new(),
             started: 0,
             now: 0,
         }
@@ -361,15 +372,58 @@ impl Prober {
     /// timed out.
     pub fn done(&self) -> bool {
         self.nip11.len() == self.relays.len()
-            && self.tests.keys().all(|r| {
-                let p = self.probes.get(r);
-                let finished = p.is_some_and(|p| {
-                    p.accepted == Some(false) || p.read_back.len() == self.delays.len()
-                });
-                let silent = !self.accepted_at.contains_key(r)
-                    && self.now - self.started > A6_PROBE_TIMEOUT_SECS;
-                finished || silent
-            })
+            && self.probe_queue.is_empty()
+            && self.probing.is_empty()
+    }
+
+    /// A running probe is over: refused, read back after every delay, or
+    /// silent for too long.
+    fn finished(&self, relay: &str, since: i64) -> bool {
+        let p = self.probes.get(relay);
+        p.is_some_and(|p| p.accepted == Some(false) || p.read_back.len() == self.delays.len())
+            || (!self.accepted_at.contains_key(relay) && self.now - since > A6_PROBE_TIMEOUT_SECS)
+    }
+
+    /// A probe that just finished makes room for the next.
+    fn settle(&mut self, relay: &str) -> Vec<Action> {
+        match self.probing.get(relay) {
+            Some(since) if self.finished(relay, *since) => {
+                self.probing.remove(relay);
+                self.next_probes()
+            }
+            _ => Vec::new(),
+        }
+    }
+
+    fn next_fetches(&mut self) -> Vec<Action> {
+        let mut out = Vec::new();
+        while self.nip11_in_flight < A6_CONCURRENCY
+            && let Some(relay) = self.nip11_queue.pop_front()
+        {
+            self.nip11_in_flight += 1;
+            out.push(Action::FetchNip11 { relay });
+        }
+        out
+    }
+
+    fn next_probes(&mut self) -> Vec<Action> {
+        let mut out = Vec::new();
+        while self.probing.len() < A6_CONCURRENCY
+            && let Some(relay) = self.probe_queue.pop_front()
+        {
+            let e = &self.tests[&relay];
+            out.push(Action::Subscribe {
+                relay: relay.clone(),
+                filter: Prober::filter(e, e.created_at - 1),
+            });
+            out.push(Action::Publish {
+                relay: relay.clone(),
+                id: e.id.clone(),
+                raw: e.raw.clone(),
+            });
+            self.probing.insert(relay, self.now);
+        }
+        out
     }
 
     /// The verdicts so far (local: this peer's own tests).
@@ -408,22 +462,10 @@ impl Machine for Prober {
             .into_iter()
             .map(|(r, e)| (Self::norm(&r), e))
             .collect();
-        let mut out: Vec<Action> = self
-            .relays
-            .iter()
-            .map(|r| Action::FetchNip11 { relay: r.clone() })
-            .collect();
-        for (relay, e) in &self.tests {
-            out.push(Action::Subscribe {
-                relay: relay.clone(),
-                filter: Prober::filter(e, e.created_at - 1),
-            });
-            out.push(Action::Publish {
-                relay: relay.clone(),
-                id: e.id.clone(),
-                raw: e.raw.clone(),
-            });
-        }
+        self.nip11_queue = self.relays.iter().cloned().collect();
+        self.probe_queue = self.tests.keys().cloned().collect();
+        let mut out = self.next_fetches();
+        out.extend(self.next_probes());
         out
     }
 
@@ -433,7 +475,8 @@ impl Machine for Prober {
                 let relay = Self::norm(&relay);
                 self.nip11
                     .insert(relay, json.as_deref().and_then(Nip11::parse));
-                Vec::new()
+                self.nip11_in_flight = self.nip11_in_flight.saturating_sub(1);
+                self.next_fetches()
             }
             Input::Ok {
                 relay,
@@ -445,10 +488,10 @@ impl Machine for Prober {
                 if self.tests.get(&relay).is_some_and(|e| e.id == id) {
                     self.probes.entry(relay.clone()).or_default().accepted = Some(accepted);
                     if accepted {
-                        self.accepted_at.insert(relay, self.now);
+                        self.accepted_at.insert(relay.clone(), self.now);
                     }
                 }
-                Vec::new()
+                self.settle(&relay)
             }
             Input::Failed { relay, health } => {
                 let relay = Self::norm(&relay);
@@ -481,13 +524,25 @@ impl Machine for Prober {
                         .or_default()
                         .read_back
                         .push((delay, found));
-                    out.push(Action::Unsubscribe { relay });
+                    out.push(Action::Unsubscribe {
+                        relay: relay.clone(),
+                    });
                 }
+                out.extend(self.settle(&relay));
                 out
             }
             Input::Tick { now } => {
                 self.now = now;
-                let mut out = Vec::new();
+                let over: Vec<String> = self
+                    .probing
+                    .iter()
+                    .filter(|(r, since)| self.finished(r, **since))
+                    .map(|(r, _)| r.clone())
+                    .collect();
+                for r in over {
+                    self.probing.remove(&r);
+                }
+                let mut out = self.next_probes();
                 let seen: HashSet<&String> = self.reading.keys().collect();
                 let mut start = Vec::new();
                 for (relay, at) in &self.accepted_at {

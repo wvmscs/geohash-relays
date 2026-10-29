@@ -175,3 +175,23 @@ fn the_prober_fetches_writes_and_reads_back() {
     assert_eq!(reqs(&q.verdicts["wss://b.example"].refusals), ["R5"]);
     let _ = Health::Dead;
 }
+
+#[test]
+fn at_most_sixteen_at_once() {
+    let relays: Vec<String> = (0..40).map(|i| format!("wss://r{i}.example")).collect();
+    let mut p = Prober::new(relays, BTreeMap::new(), &[]);
+    let start = p.start(0);
+    assert_eq!(start.len(), 16);
+    let next = p.handle(Input::Nip11 {
+        relay: "wss://r0.example".into(),
+        json: None,
+    });
+    assert!(matches!(&next[..], [Action::FetchNip11 { relay }] if relay == "wss://r16.example"));
+    for i in 1..40 {
+        p.handle(Input::Nip11 {
+            relay: format!("wss://r{i}.example"),
+            json: None,
+        });
+    }
+    assert!(p.done());
+}
