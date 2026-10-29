@@ -10,6 +10,10 @@
   `Selected` and `GeoRelay` move to `strategy`.
 
 ### Added
+- `a6` (lot 4): `Nip11` (declaration), `Probe` (test results), `Verdict` (refusals R1, R2, R5,
+  R6, R7, R9; warnings R8, R11, R13; a probe prevails), `Qualification` (a local filter only
+  with A0: `SharedStrategy::qualified`; a shared one for any list), `Prober` (the probe
+  machine). `RelayDirectory::retain`, `Error::LocalQualification`. `serde_json` dependency.
 - `a0` (lot 3): `SharedStrategy` (one list, iOS rule, write 8 / read 5, failed relays
   replaced, shared relays), `ListVersion` (SHA-256 of the normalised lines). `sha2` dependency.
   The `compare` example compares strategies with two peers each.

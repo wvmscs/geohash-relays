@@ -16,4 +16,6 @@ repository = "https://github.com/wvmscs/geohash-relays"
 [dependencies]
 # SHA-256: list digests (A0), rendezvous hashing (A1).
 sha2 = "0.10"
+# NIP-11 documents (A6), monitor reports (A2).
+serde_json = "1"
 thiserror = "2"

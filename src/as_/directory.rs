@@ -137,6 +137,12 @@ impl RelayDirectory {
         self.relays.len()
     }
 
+    /// The same list without the relays `keep` refuses (A6, A2).
+    pub fn retain(mut self, keep: impl Fn(&DirectoryRelay) -> bool) -> Self {
+        self.relays.retain(|r| keep(r));
+        self
+    }
+
     pub fn is_empty(&self) -> bool {
         self.relays.is_empty()
     }

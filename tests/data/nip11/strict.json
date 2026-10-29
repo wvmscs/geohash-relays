@@ -1,0 +1,1 @@
+{"name":"paid relay (synthetic)","limitation":{"payment_required":true,"restricted_writes":true,"min_pow_difficulty":16},"retention":[{"kinds":[20000,20001],"time":600},{"time":86400}]}

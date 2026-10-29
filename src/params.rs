@@ -164,6 +164,13 @@ pub const A6_MIN_SUBSCRIPTIONS: u64 = 21;
 pub const A6_MIN_MESSAGE_BYTES: u64 = 64 * 1024;
 /// Delays after which a probe reads its test event back (§7, question 1).
 pub const A6_PROBE_DELAYS_SECS: &[i64] = &[300, 3_600, 86_400];
+/// The first read-back, right after the `OK` (R9: live subscribers and
+/// storage of the ephemeral kinds).
+pub const A6_PROBE_FIRST_READ_SECS: i64 = 5;
+/// The cell probes write to: open sea (South Atlantic), nobody's channel.
+pub const A6_PROBE_CELL: &str = "7zzzzzzz";
+/// A probe gives up on a relay that answers nothing for this long.
+pub const A6_PROBE_TIMEOUT_SECS: i64 = 30;
 
 // ---------------------------------------------------------------- comparison bench
 

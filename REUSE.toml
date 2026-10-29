@@ -2,7 +2,7 @@ version = 1
 
 # Files that cannot carry a header (REUSE); every other file has its own.
 [[annotations]]
-path = ["**/*.md", "Cargo.lock"]
+path = ["**/*.md", "Cargo.lock", "tests/data/nip11/*.json"]
 precedence = "aggregate"
 SPDX-FileCopyrightText = "2026 William VITAL, FR (wvmscs)"
 SPDX-License-Identifier = "Unlicense OR 0BSD"

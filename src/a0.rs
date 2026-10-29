@@ -117,6 +117,13 @@ impl SharedStrategy {
         self
     }
 
+    /// Without the relays a qualification refuses (A6). A local one (this
+    /// peer's own tests) is accepted: this strategy writes wide.
+    pub fn qualified(mut self, q: &crate::a6::Qualification) -> Self {
+        self.list = q.filter_any(self.list);
+        self
+    }
+
     pub fn version(&self) -> Option<&ListVersion> {
         self.version.as_ref()
     }

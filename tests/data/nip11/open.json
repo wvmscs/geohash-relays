@@ -1,0 +1,1 @@
+{"name":"open relay (synthetic)","supported_nips":[1,9,11,40],"limitation":{"auth_required":false,"payment_required":false,"restricted_writes":false,"min_pow_difficulty":0,"max_subscriptions":300,"max_message_length":131072},"retention":[{"kinds":[[20000,29999]],"time":7200},{"kinds":[1,5],"time":null}]}
