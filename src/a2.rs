@@ -280,7 +280,7 @@ impl Watcher {
         }
     }
 
-    /// Every monitor relay sent its stored reports.
+    /// Every monitor relay sent its stored reports, or failed.
     pub fn caught_up(&self) -> bool {
         self.relays.iter().all(|r| {
             self.eose
@@ -347,7 +347,9 @@ impl Machine for Watcher {
                     }
                 }
             }
-            Input::Eose { relay } => {
+            // A relay that sent its stored reports, or cannot be reached, is
+            // done.
+            Input::Eose { relay } | Input::Failed { relay, .. } => {
                 self.eose.insert(normalize_url(&relay).unwrap_or(relay));
             }
             Input::Tick { now } => self.now = now,
