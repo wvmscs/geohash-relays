@@ -85,7 +85,7 @@ retenues, attente de `OK`, `AUTH`, `CLOSED`) font l'objet de PR au lot 12.
 | 4 | `a6` : qualification NIP-11 et sondes | ✅ |
 | 5 | `a1` : HRW salé | ✅ |
 | 6 | `a2` : annuaire des moniteurs NIP-66 | ✅ |
-| 7 | `a3` : relais annoncés dans les présences | ⬜ |
+| 7 | `a3` : relais annoncés dans les présences | ✅ |
 | 8 | `a5` : fédération synchronisée, détection des omissions | ⬜ |
 | 9 | Mesures réelles du §7 (avec l'utilisateur) | ⬜ |
 | 10 | Évaluation des stratégies et dossier de proposition aux apps | ⬜ |
@@ -295,16 +295,22 @@ majorité des moniteurs de confiance qui signalent le relais ; un moniteur hosti
 sans effet ; garde-fou à 50 % (`A2_MAX_REMOVED_SHARE`). Console : `--monitors`,
 `--monitor-relays`, cache `monitors.csv`.
 
-### Lot 7 : `a3`, relais annoncés ⬜
+### Lot 7 : `a3`, relais annoncés ✅
 
-- [ ] Compatibilité : iOS ignore un tag de plus dans une présence
-      (`NostrInboundPipeline.subscribeNostrEvent` ne lit que `n` et `t`) ; **à vérifier
-      côté Android** (`GeohashMessageHandler.kt`).
-- [ ] Règle (G9) : tag, registre des annonces (cellule, clé, relais, preuve de travail,
+- [x] Compatibilité : iOS ignore un tag de plus dans une présence
+      (`NostrInboundPipeline.subscribeNostrEvent` ne lit que `n` et `t`) ; Android aussi :
+      `GeohashMessageHandler.kt` (commit `20501fdfe0`) ne lit que `g`, `n` et `t`.
+- [x] Règle (G9) : tag, registre des annonces (cellule, clé, relais, preuve de travail,
       date), `Announced<S>` = base de `S` + relais annoncés par *k* clés récentes.
-- [ ] Mécanisme par les ports : tag ajouté aux présences, lecture des présences reçues.
-- [ ] Tests : convergence d'un pair iOS et d'un pair Android ; Sybil à faible preuve de
+- [x] Mécanisme par les ports : tag ajouté aux présences, lecture des présences reçues.
+- [x] Tests : convergence d'un pair iOS et d'un pair Android ; Sybil à faible preuve de
       travail sans effet ; annonces périmées oubliées.
+
+Fait : `a3::{announce_tags, PresenceBook, Announced}` ; convergence vérifiée sur les cellules
+de précision 2 où les apps se manquent aujourd'hui (rendez-vous 100 % dès que deux clés de
+chaque côté annoncent) ; console `--announce-relays` (présences avec preuve de travail de
+8 bits, ensemble annoncé suivi aussitôt). Il faut au départ un relais commun (amorce), qui
+porte les annonces : relais partagés A0, A1 ou `AS`.
 
 ### Lot 8 : `a5`, fédération ⬜
 
@@ -371,3 +377,4 @@ sans effet ; garde-fou à 50 % (`A2_MAX_REMOVED_SHARE`). Console : `--monitors`,
 - 29/10/2026 : lot 4 fait (A6).
 - 29/10/2026 : lot 5 fait (A1).
 - 29/10/2026 : lot 6 fait (A2).
+- 29/10/2026 : lot 7 fait (A3) ; compatibilité Android vérifiée.
