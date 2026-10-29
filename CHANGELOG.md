@@ -10,6 +10,8 @@
   `Selected` and `GeoRelay` move to `strategy`.
 
 ### Added
+- `a5` (lot 8): `Federation` (read 2 members, write 1, chosen per cell by HRW), `sync_filter`,
+  `omissions`, `Comparer` machine; `docs/federation.md` (strfry router and sync, NIP-77).
 - `a3` (lot 7): `announce_tags` (`["relay", url]`, at most 5), `PresenceBook` (2 distinct keys,
   proof of work 8, 10 min), `Announced` (a base strategy plus the announced relays).
   Compatibility checked in both apps (only `g`, `n`, `t` read in a presence).
