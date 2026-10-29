@@ -82,7 +82,7 @@ retenues, attente de `OK`, `AUTH`, `CLOSED`) font l'objet de PR au lot 12.
 | 1 | Banc de comparaison : rendez-vous iOS/Android, charge, stabilité, coût de capture, pannes | ✅ |
 | 2 | `a4` : republication entre les ensembles iOS et Android | ✅ |
 | 3 | `a0` : liste et règle uniques, écrire large / lire étroit, remplacement, relais partagés | ✅ |
-| 4 | `a6` : qualification NIP-11 et sondes | ⬜ |
+| 4 | `a6` : qualification NIP-11 et sondes | ✅ |
 | 5 | `a1` : HRW salé | ⬜ |
 | 6 | `a2` : annuaire des moniteurs NIP-66 | ⬜ |
 | 7 | `a3` : relais annoncés dans les présences | ⬜ |
@@ -228,19 +228,28 @@ après 10 min), stratégie reconstruite à chaud. Banc (`compare`) :
 | Rendez-vous avec 1, 2, 3 relais morts | 87, 80, 75 % | **100, 100, 100 %** |
 | Coût de capture (iOS), quatre villes | 5 | 5 (A0 ne résiste pas à la capture, comme prévu) |
 
-### Lot 4 : `a6`, qualification ⬜
+### Lot 4 : `a6`, qualification ✅
 
-- [ ] Règle : verdict NIP-11 par exigence du §3 (R5, R6, R7, R8, R11, R13), raison de chaque
+- [x] Règle : verdict NIP-11 par exigence du §3 (R5, R6, R7, R8, R11, R13), raison de chaque
       refus ; résultat de sonde prioritaire sur la déclaration.
-- [ ] Mécanisme par les ports : lecture NIP-11 (`Accept: application/nostr+json`), sonde
+- [x] Mécanisme par les ports : lecture NIP-11 (`Accept: application/nostr+json`), sonde
       (écriture kind 20000 sur une cellule de test, relecture après 5 min, 1 h, 24 h ;
       redirection R2 ; certificat R1) ; cache daté chez l'hôte.
-- [ ] `Qualified<S>` : filtre avant classement, seulement avec « écrire large » (A0) ou un
+- [x] `Qualified<S>` : filtre avant classement, seulement avec « écrire large » (A0) ou un
       filtre partagé (A2) ; sinon refus documenté (mise en garde du §5).
-- [ ] bitchat-console : commande `--qualify` (rapport sur les deux listes, questions 1 à 3
+- [x] bitchat-console : commande `--qualify` (rapport sur les deux listes, questions 1 à 3
       du §7).
-- [ ] Tests : documents NIP-11 figés (`relay.mmwaves.de`, `herbstmeister.com` : AUTH ;
-      `treuzkas.branruz.com` : redirection).
+- [x] Tests : documents NIP-11 figés, **synthétiques** (sur le modèle de `relay.mmwaves.de` et
+      `herbstmeister.com` : AUTH ; un relais payant à preuve de travail 16 ; un relais ouvert),
+      pour ne pas figer des documents de tiers sans licence ; redirection testée par un
+      serveur local qui répond `302` (comme `treuzkas.branruz.com`).
+
+Fait : `a6::{Nip11, Probe, Verdict, Finding, Qualification, Prober}`. La sonde s'abonne
+**avant** de publier (R9 : livraison en direct, obligatoire) puis relit (R11 : conservation,
+recommandée) : un relais qui ne garde pas les éphémères reste utilisable, avec un
+avertissement R11. Une redirection (R2) ou un certificat refusé (R1) arrêtent la connexion
+pour de bon (`-net`). Console : `--qualify` (NIP-11 seulement), `--qualify-probe` (écrit un
+événement de test par relais, sur action de l'utilisateur), rapport `qualification.md`.
 
 ### Lot 5 : `a1`, HRW salé ⬜
 
@@ -332,3 +341,4 @@ après 10 min), stratégie reconstruite à chaud. Banc (`compare`) :
   `compare`. Les 322 cellules du §4 sont retrouvées.
 - 29/10/2026 : lot 2 fait (A4) ; mesure du débit réel reportée au lot 9.
 - 29/10/2026 : lot 3 fait (A0).
+- 29/10/2026 : lot 4 fait (A6).
