@@ -74,3 +74,28 @@ fn default_relays_and_lists() {
     assert!(Platform::Ios.list_url().ends_with("online_relays_gps.csv"));
     assert!(Platform::Android.list_url().ends_with("nostr_relays.csv"));
 }
+
+#[test]
+fn ranks_roles_and_origins() {
+    use geohash_relays::{Origin, Role};
+    let s = strategy(Apps::Both).read("u09tv").unwrap();
+    for (i, sel) in s.iter().enumerate() {
+        assert_eq!(sel.rank, i + 1);
+        assert_eq!(sel.role, Role::ReadWrite);
+        let expected = match (sel.ios.is_some(), sel.android.is_empty()) {
+            (true, true) => Origin::Ios,
+            (false, _) => Origin::Android,
+            (true, false) => Origin::Both,
+        };
+        assert_eq!(sel.origin, expected);
+    }
+    assert!(s.iter().any(|x| x.origin == Origin::Both));
+    let ios = AppStrategy::ios(RelayDirectory::parse(IOS, Platform::Ios));
+    assert!(
+        ios.read("u09tv")
+            .unwrap()
+            .iter()
+            .all(|x| x.origin == Origin::Ios)
+    );
+    assert_eq!(ios.describe(), "AS (iOS, 5 nearest)");
+}

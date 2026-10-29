@@ -188,11 +188,7 @@ fn parse_line(line: &str, platform: Platform) -> Option<DirectoryRelay> {
     Some(DirectoryRelay { url, lat, lon })
 }
 
-/// iOS list, as the app downloads it (`GeoRelayDirectory.swift`).
-pub const IOS_LIST_URL: &str = "https://raw.githubusercontent.com/permissionlesstech/bitchat/refs/heads/main/relays/online_relays_gps.csv";
-/// Android list: georelays' daily output, unreviewed.
-pub const ANDROID_LIST_URL: &str =
-    "https://raw.githubusercontent.com/permissionlesstech/georelays/main/nostr_relays.csv";
+pub use crate::params::{ANDROID_LIST_URL, IOS_LIST_URL};
 
 impl Platform {
     /// The URL of the list the app downloads.
@@ -209,18 +205,8 @@ impl Platform {
     /// `nostr/NostrRelayManager.kt`.
     pub fn default_relays(self) -> &'static [&'static str] {
         match self {
-            Platform::Ios => &[
-                "wss://relay.damus.io",
-                "wss://nos.lol",
-                "wss://relay.primal.net",
-                "wss://offchain.pub",
-            ],
-            Platform::Android => &[
-                "wss://relay.damus.io",
-                "wss://relay.primal.net",
-                "wss://offchain.pub",
-                "wss://nostr21.com",
-            ],
+            Platform::Ios => crate::params::IOS_DEFAULT_RELAYS,
+            Platform::Android => crate::params::ANDROID_DEFAULT_RELAYS,
         }
     }
 }

@@ -2,71 +2,132 @@
 // SPDX-License-Identifier: Unlicense OR 0BSD
 
 //! How a client picks the relays of a channel, behind one interface, so that
-//! the apps' rule (`AS`) and the alternatives (`A0` to `A6`, later) can be
-//! swapped and compared. See bitchat-envelope
+//! the apps' rule (`AS`) and the alternatives (`A0` to `A6`) can be swapped
+//! and compared. See bitchat-envelope
 //! `Documents/geohash-relays-requirements-and-alternatives.md`.
+//!
+//! A strategy is an **immutable snapshot** (decision G2 of `PLAN_ET1.md`):
+//! when its inputs change (relays found dead, presences seen, monitor
+//! reports), the host builds a new one and swaps it in. No lock, no clock in
+//! the crate.
 
-use crate::directory::RelayDirectory;
+use std::collections::HashMap;
+
 use crate::error::Result;
-use crate::select::{Selected, select_both};
+
+/// A relay with its distance to a channel centre.
+#[derive(Debug, Clone, PartialEq)]
+pub struct GeoRelay {
+    pub url: String,
+    pub lat: f64,
+    pub lon: f64,
+    /// Great-circle distance to the channel centre; `f64::INFINITY` when the
+    /// relay has no known position (announced relays, A3).
+    pub km: f64,
+}
+
+impl GeoRelay {
+    /// A relay without a known position.
+    pub fn unplaced(url: impl Into<String>) -> Self {
+        GeoRelay {
+            url: url.into(),
+            lat: 0.0,
+            lon: 0.0,
+            km: f64::INFINITY,
+        }
+    }
+}
+
+/// What a client does with a chosen relay.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum Role {
+    /// Read from and written to.
+    ReadWrite,
+    /// Written to only ("write wide", A0; epoch overlap, A1).
+    WriteOnly,
+}
+
+/// Why a relay is chosen.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum Origin {
+    /// The iOS choice (`AS`).
+    Ios,
+    /// The Android choice (`AS`).
+    Android,
+    /// Both apps' choices (`AS`).
+    Both,
+    /// The strategy's own order on its list (A0, A1, A5).
+    List,
+    /// A relay shared by every cell (`includeDefaults`, A0).
+    Shared,
+    /// Announced in the presences of the cell (A3).
+    Announced,
+}
+
+/// A server chosen for a channel.
+#[derive(Debug, Clone, PartialEq)]
+pub struct Selected {
+    /// The server (`url` normalised, see
+    /// [`normalize_url`](crate::directory::normalize_url)).
+    pub relay: GeoRelay,
+    /// 1-based rank in the strategy's order.
+    pub rank: usize,
+    pub role: Role,
+    pub origin: Origin,
+    /// `AS` only: 1-based rank in the iOS choice.
+    pub ios: Option<usize>,
+    /// `AS` only: 1-based ranks in the Android choice: empty, one, or two
+    /// when the list has the server twice (`host` and `host:443`).
+    pub android: Vec<usize>,
+}
+
+impl Selected {
+    /// A relay chosen by a strategy other than `AS`.
+    pub fn new(relay: GeoRelay, rank: usize, role: Role, origin: Origin) -> Self {
+        Selected {
+            relay,
+            rank,
+            role,
+            origin,
+            ios: None,
+            android: Vec::new(),
+        }
+    }
+}
 
 /// The relays of a channel.
 pub trait Strategy: Send + Sync {
     /// Short name: `"AS"`, `"A0"`…
     fn name(&self) -> &str;
 
-    /// Servers to read the channel from, nearest or best first, with the
-    /// detail of each app's choice.
+    /// The parameters, for display and for the comparison bench.
+    fn describe(&self) -> String {
+        self.name().to_owned()
+    }
+
+    /// Servers to read the channel from, best first.
     fn read(&self, geohash: &str) -> Result<Vec<Selected>>;
 
     /// Servers to write to. The same as [`read`](Self::read) unless the
-    /// strategy writes wider than it reads (A0).
+    /// strategy writes wider than it reads (A0, A1 around an epoch change).
     fn write(&self, geohash: &str) -> Result<Vec<Selected>> {
         self.read(geohash)
     }
 }
 
-/// Which apps' choice the `AS` strategy follows.
+/// What a client knows of a relay's health, from its connections (A0, A6).
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
-pub enum Apps {
-    /// Union of the iOS and Android choices: reaches the users of both.
-    Both,
-    Ios,
-    Android,
+pub enum Health {
+    /// Unreachable, or lost and not back.
+    Dead,
+    /// Requires NIP-42 and refused the client.
+    AuthRequired,
+    /// Answered the WebSocket upgrade with a redirection (R2).
+    Redirect,
+    /// Refused the client's publications.
+    WriteRefused,
 }
 
-/// `AS`: what the apps do today. Each app picks the 5 relays nearest to the
-/// channel centre from its own list, with its own rule
-/// ([`select_both`]).
-#[derive(Debug, Clone)]
-pub struct AppStrategy {
-    ios: Option<RelayDirectory>,
-    android: Option<RelayDirectory>,
-    apps: Apps,
-}
-
-impl AppStrategy {
-    /// Either list may be missing; then that app chooses nothing.
-    pub fn new(ios: Option<RelayDirectory>, android: Option<RelayDirectory>, apps: Apps) -> Self {
-        AppStrategy { ios, android, apps }
-    }
-
-    pub fn apps(&self) -> Apps {
-        self.apps
-    }
-}
-
-impl Strategy for AppStrategy {
-    fn name(&self) -> &str {
-        "AS"
-    }
-
-    fn read(&self, geohash: &str) -> Result<Vec<Selected>> {
-        let (ios, android) = match self.apps {
-            Apps::Both => (self.ios.as_ref(), self.android.as_ref()),
-            Apps::Ios => (self.ios.as_ref(), None),
-            Apps::Android => (None, self.android.as_ref()),
-        };
-        select_both(ios, android, geohash)
-    }
-}
+/// Relays known to be unusable, by normalised URL. A relay not in the map is
+/// assumed to work.
+pub type RelayHealth = HashMap<String, Health>;

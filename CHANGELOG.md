@@ -2,6 +2,22 @@
 
 ## [Unreleased]
 
+### Changed (lot 0 of `PLAN_ET1.md`, branch `strategies`)
+- Modules: `as_` (`AS`: `directory`, `select`, `AppStrategy`, also re-exported at the root
+  under their old paths), `a0` to `a6` (the alternatives).
+- `Selected` is generic: `rank`, `role` (`ReadWrite`, `WriteOnly`), `origin` (`Ios`,
+  `Android`, `Both`, `List`, `Shared`, `Announced`); `ios` and `android` stay for `AS`.
+  `Selected` and `GeoRelay` move to `strategy`.
+
+### Added
+- `params`: every constant, with its source (G14); `GEO_RELAY_COUNT`, `MAX_PRECISION`, list
+  URLs and default relays moved there.
+- `sansio`: `EventMeta`, `FilterSpec`, `Input`, `Action`, `Machine`, the form of the
+  strategies that talk to relays (G13).
+- `Strategy::describe`, `AppStrategy::ios` and `AppStrategy::android`, `Health` and
+  `RelayHealth`.
+- `deny.toml` (licences compatible with `Unlicense OR 0BSD`).
+
 ### Added
 - Relay lists with each app's rules (`RelayDirectory`, `Platform`, `normalize_url`), the list
   URLs and the apps' default relays (`Platform::list_url`, `Platform::default_relays`); ported

@@ -8,28 +8,34 @@
 //! choice, isolated so that other strategies can replace it (see
 //! `bitchat-envelope/Documents/geohash-relays-requirements-and-alternatives.md`):
 //!
-//! * `AS`: what the apps do today, iOS and Android rules ([`AppStrategy`]);
-//! * `A0` to `A6`: the alternatives, later.
+//! * [`as_`]: what the apps do today, iOS and Android rules (`AS`);
+//! * [`a0`] to [`a6`]: the alternatives.
 //!
-//! Also the geohash arithmetic the apps use ([`geohash`]): centre, bounds,
-//! the 8 neighbours. Pure and synchronous: reading the lists from the
-//! network is left to the caller.
+//! Also the geohash arithmetic the apps use ([`geohash`]), every constant
+//! ([`params`]), and the form of the strategies that talk to relays
+//! ([`sansio`]). Pure and synchronous: the network is left to the caller
+//! (`geohash-relays-net`).
 //!
-//! Written to be proposed to the BitChat apps; public domain (Unlicense),
-//! like the iOS app.
+//! Written to be proposed to the BitChat apps; public domain (Unlicense, or
+//! 0BSD), like the iOS app.
 
-pub mod directory;
+pub mod a0;
+pub mod a1;
+pub mod a2;
+pub mod a3;
+pub mod a4;
+pub mod a5;
+pub mod a6;
+pub mod as_;
 mod error;
 pub mod geohash;
-pub mod select;
+pub mod params;
+pub mod sansio;
 pub mod strategy;
 
+pub use as_::{AppStrategy, Apps, directory, select};
 pub use directory::{DirectoryRelay, Platform, RelayDirectory, normalize_url};
 pub use error::{Error, Result};
-pub use select::{GeoRelay, Selected, closest, select_both};
-pub use strategy::{AppStrategy, Apps, Strategy};
-
-/// Relays an app writes a location-channel event to, and reads it from: the
-/// closest to the channel centre, per app (Android may count one server
-/// twice).
-pub const GEO_RELAY_COUNT: usize = 5;
+pub use params::GEO_RELAY_COUNT;
+pub use select::{closest, select_both};
+pub use strategy::{GeoRelay, Health, Origin, RelayHealth, Role, Selected, Strategy};

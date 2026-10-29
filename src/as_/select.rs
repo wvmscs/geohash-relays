@@ -8,31 +8,12 @@
 //! `RelayDirectory.closestRelaysForGeohash`, commit `eed88190c0` (see bitchat-envelope
 //! `Documents/relay-selection-corrections.md`).
 
-use crate::GEO_RELAY_COUNT;
 use crate::directory::{Platform, RelayDirectory, normalize_url};
 use crate::error::Result;
+use crate::params::{EARTH_RADIUS_KM, GEO_RELAY_COUNT};
 
-/// A relay with its distance to a channel centre.
-#[derive(Debug, Clone, PartialEq)]
-pub struct GeoRelay {
-    pub url: String,
-    pub lat: f64,
-    pub lon: f64,
-    pub km: f64,
-}
-
-/// A server chosen for a channel by iOS, Android or both.
-#[derive(Debug, Clone, PartialEq)]
-pub struct Selected {
-    /// The server (`url` normalised, see [`normalize_url`]); coordinates and
-    /// distance from the iOS list when both apps choose it.
-    pub relay: GeoRelay,
-    /// 1-based rank in the iOS choice (1 to `GEO_RELAY_COUNT`).
-    pub ios: Option<usize>,
-    /// 1-based ranks in the Android choice: empty, one, or two when the list
-    /// has the server twice (`host` and `host:443`).
-    pub android: Vec<usize>,
-}
+pub use crate::strategy::{GeoRelay, Selected};
+use crate::strategy::{Origin, Role};
 
 /// Centre (lat, lon) of a geohash cell.
 pub fn geohash_center(geohash: &str) -> Result<(f64, f64)> {
@@ -92,11 +73,12 @@ pub fn select_both(
             let at = match out.iter().position(|s| s.relay.url == url) {
                 Some(at) => at,
                 None => {
-                    out.push(Selected {
-                        relay: GeoRelay { url, ..r },
-                        ios: None,
-                        android: Vec::new(),
-                    });
+                    out.push(Selected::new(
+                        GeoRelay { url, ..r },
+                        0,
+                        Role::ReadWrite,
+                        Origin::Both,
+                    ));
                     out.len() - 1
                 }
             };
@@ -113,13 +95,21 @@ pub fn select_both(
             .total_cmp(&b.relay.km)
             .then_with(|| a.relay.url.cmp(&b.relay.url))
     });
+    for (i, s) in out.iter_mut().enumerate() {
+        s.rank = i + 1;
+        s.origin = match (s.ios.is_some(), s.android.is_empty()) {
+            (true, true) => Origin::Ios,
+            (false, _) => Origin::Android,
+            (true, false) => Origin::Both,
+        };
+    }
     Ok(out)
 }
 
-fn haversine_km(lat1: f64, lon1: f64, lat2: f64, lon2: f64) -> f64 {
+pub(crate) fn haversine_km(lat1: f64, lon1: f64, lat2: f64, lon2: f64) -> f64 {
     let (p1, p2) = (lat1.to_radians(), lat2.to_radians());
     let dp = p2 - p1;
     let dl = (lon2 - lon1).to_radians();
     let a = (dp / 2.0).sin().powi(2) + p1.cos() * p2.cos() * (dl / 2.0).sin().powi(2);
-    6371.0 * 2.0 * a.sqrt().asin()
+    EARTH_RADIUS_KM * 2.0 * a.sqrt().asin()
 }

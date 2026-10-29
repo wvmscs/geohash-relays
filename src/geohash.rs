@@ -6,12 +6,8 @@
 //! Self-contained (no dependency), so that the apps can port it as is.
 
 use crate::error::{Error, Result};
-
-/// The geohash alphabet: base 32 without `a`, `i`, `l`, `o`.
-const ALPHABET: &[u8; 32] = b"0123456789bcdefghjkmnpqrstuvwxyz";
-
-/// Longest geohash accepted: 12 characters (a few centimetres).
-pub const MAX_PRECISION: usize = 12;
+use crate::params::GEOHASH_ALPHABET as ALPHABET;
+pub use crate::params::MAX_PRECISION;
 
 /// Bounds of a cell: `[[south, west], [north, east]]`, in degrees.
 pub type Bbox = [[f64; 2]; 2];

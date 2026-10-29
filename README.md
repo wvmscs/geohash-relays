@@ -20,9 +20,26 @@ the exact rules of each app, so that it can be tested, compared with alternative
 
 Distances are great-circle (haversine, radius 6371 km) from the centre of the cell.
 
-The `Strategy` trait puts the choice behind one interface: `AppStrategy` (`AS`, today's apps,
-iOS, Android or both) now; the alternatives A0 to A6 of
-`bitchat-envelope/Documents/geohash-relays-requirements-and-alternatives.md` later.
+The `Strategy` trait puts the choice behind one interface. A strategy is an immutable
+snapshot: when what it knows changes, the host builds a new one.
+
+| Module | Strategy |
+|---|---|
+| `as_` | `AS`: today's apps, iOS and Android, each on its own list (`AppStrategy`) |
+| `a0` | one list and one rule, write wide and read narrow, failed relays replaced, shared relays |
+| `a1` | salted rendezvous hashing (HRW) |
+| `a2` | directory from NIP-66 monitors |
+| `a3` | relays announced in presences |
+| `a4` | republication between the iOS and Android relay sets |
+| `a5` | synchronised federation (NIP-77), omissions |
+| `a6` | relay qualification (NIP-11, probes) |
+
+`params` holds every constant, with its source. Strategies that talk to relays are machines
+without I/O (`sansio`); [geohash-relays-net](https://github.com/wvmscs/geohash-relays-net)
+runs them with the communication of the iOS app, the Android app or bitchat-console.
+The alternatives come from
+`bitchat-envelope/Documents/geohash-relays-requirements-and-alternatives.md`; progress is in
+`PLAN_ET1.md` (branch `strategies`).
 
 ## Why the two apps drift apart
 
