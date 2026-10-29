@@ -108,6 +108,11 @@ pub const A1_OVERLAP_SECS: i64 = 3_600;
 pub const A2_MIN_MONITORS: usize = 2;
 /// Reports older than this are ignored.
 pub const A2_REPORT_MAX_AGE_SECS: i64 = 3 * 86_400;
+/// NIP-66 risk mitigation: monitor results that would remove more than this
+/// share of a list are discarded.
+pub const A2_MAX_REMOVED_SHARE: f64 = 0.5;
+/// Reports asked for per monitor relay at subscription.
+pub const A2_HISTORY_LIMIT: u32 = 5_000;
 
 // ---------------------------------------------------------------- A3 (G9)
 

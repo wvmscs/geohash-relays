@@ -10,6 +10,10 @@
   `Selected` and `GeoRelay` move to `strategy`.
 
 ### Added
+- `a2` (lot 6): NIP-66 `Report` (kind 30166: `d`, `R`, `k`, `n`, `g`, NIP-11 content) and
+  `Announcement` (kind 10166), checked against `66.md` of 2026-10-29; `Directory` (*m* of the
+  trusted monitors, findings by majority, a shared `Qualification`, `to_list` for A1,
+  `guard`: results removing more than half of a list are not used); `Watcher` machine.
 - `a1` (lot 5): `HrwStrategy` (salted rendezvous hashing, k = 5, p = 4, epochs of a UTC day,
   writes to both epochs within an hour of a change), `score`, `Salts`, `epoch_of`; frozen
   score vectors (checked against Python `hashlib`), example `hrw_vectors`.
