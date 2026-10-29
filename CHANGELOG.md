@@ -10,6 +10,9 @@
   `Selected` and `GeoRelay` move to `strategy`.
 
 ### Added
+- `a3` (lot 7): `announce_tags` (`["relay", url]`, at most 5), `PresenceBook` (2 distinct keys,
+  proof of work 8, 10 min), `Announced` (a base strategy plus the announced relays).
+  Compatibility checked in both apps (only `g`, `n`, `t` read in a presence).
 - `a2` (lot 6): NIP-66 `Report` (kind 30166: `d`, `R`, `k`, `n`, `g`, NIP-11 content) and
   `Announcement` (kind 10166), checked against `66.md` of 2026-10-29; `Directory` (*m* of the
   trusted monitors, findings by majority, a shared `Qualification`, `to_list` for A1,
