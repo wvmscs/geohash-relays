@@ -86,7 +86,7 @@ retenues, attente de `OK`, `AUTH`, `CLOSED`) font l'objet de PR au lot 12.
 | 5 | `a1` : HRW salé | ✅ |
 | 6 | `a2` : annuaire des moniteurs NIP-66 | ✅ |
 | 7 | `a3` : relais annoncés dans les présences | ✅ |
-| 8 | `a5` : fédération synchronisée, détection des omissions | ⬜ |
+| 8 | `a5` : fédération synchronisée, détection des omissions | ✅ (essai réel au lot 9) |
 | 9 | Mesures réelles du §7 (avec l'utilisateur) | ⬜ |
 | 10 | Évaluation des stratégies et dossier de proposition aux apps | ⬜ |
 | 11 | Portages Swift et Kotlin des stratégies retenues | ⬜ |
@@ -312,14 +312,21 @@ chaque côté annoncent) ; console `--announce-relays` (présences avec preuve d
 8 bits, ensemble annoncé suivi aussitôt). Il faut au départ un relais commun (amorce), qui
 porte les annonces : relais partagés A0, A1 ou `AS`.
 
-### Lot 8 : `a5`, fédération ⬜
+### Lot 8 : `a5`, fédération ✅
 
-- [ ] Documentation (G11) : filtre de synchronisation, configuration `strfry sync` / NIP-77.
-- [ ] Règle : omissions d'un membre pour une cellule et une fenêtre ; `Federation` : lire sur
+- [x] Documentation (G11) : filtre de synchronisation, configuration `strfry sync` / NIP-77.
+- [x] Règle : omissions d'un membre pour une cellule et une fenêtre ; `Federation` : lire sur
       1 ou 2 membres, écrire sur un.
-- [ ] Mécanisme par les ports : comparaison des ids vus par plusieurs relais.
-- [ ] Essai : `relay.famillevital.club` et un strfry local ; omission détectée quand la
-      synchronisation est coupée.
+- [x] Mécanisme par les ports : comparaison des ids vus par plusieurs relais.
+- [x] Essai local : deux relais de test et un membre injoignable ; la note qui manque à un
+      membre est trouvée (`--federation-check`).
+- [ ] Essai réel : `relay.famillevital.club` et un strfry local synchronisés : **reporté au
+      lot 9**, avec l'utilisateur (installer et configurer strfry sur ses machines).
+
+Fait : `a5::{Federation, Comparer, omissions, sync_filter}`, `docs/federation.md`
+(`strfry router` pour le direct, éphémères compris ; `strfry sync` NIP-77 pour le stocké ;
+durée de vie des éphémères ≥ 1 h, R11) ; console `--strategy A5 --federation`,
+`--federation-check`.
 
 ### Lot 9 : mesures réelles ⬜ (avec l'utilisateur)
 
@@ -378,3 +385,4 @@ porte les annonces : relais partagés A0, A1 ou `AS`.
 - 29/10/2026 : lot 5 fait (A1).
 - 29/10/2026 : lot 6 fait (A2).
 - 29/10/2026 : lot 7 fait (A3) ; compatibilité Android vérifiée.
+- 29/10/2026 : lot 8 fait (A5) ; essai réel avec strfry reporté au lot 9.
