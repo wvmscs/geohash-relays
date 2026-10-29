@@ -84,7 +84,7 @@ retenues, attente de `OK`, `AUTH`, `CLOSED`) font l'objet de PR au lot 12.
 | 3 | `a0` : liste et règle uniques, écrire large / lire étroit, remplacement, relais partagés | ✅ |
 | 4 | `a6` : qualification NIP-11 et sondes | ✅ |
 | 5 | `a1` : HRW salé | ✅ |
-| 6 | `a2` : annuaire des moniteurs NIP-66 | ⬜ |
+| 6 | `a2` : annuaire des moniteurs NIP-66 | ✅ |
 | 7 | `a3` : relais annoncés dans les présences | ⬜ |
 | 8 | `a5` : fédération synchronisée, détection des omissions | ⬜ |
 | 9 | Mesures réelles du §7 (avec l'utilisateur) | ⬜ |
@@ -276,14 +276,24 @@ Remarque : avec A1, le serveur le plus chargé est un tunnel temporaire
 (`*.trycloudflare.com`) : la qualification (A6) ou les moniteurs (A2) doivent écarter ce genre
 d'entrée.
 
-### Lot 6 : `a2`, annuaire NIP-66 ⬜
+### Lot 6 : `a2`, annuaire NIP-66 ✅
 
-- [ ] Vérifier le format actuel de NIP-66 (kinds 30166 et 10166) et les moniteurs existants
-      (question 6 du §7).
-- [ ] Règle : candidat si *m* moniteurs sur *n* le signalent et s'il passe `a6` ; annuaire
+- [x] Vérifier le format actuel de NIP-66 (kinds 30166 et 10166) : fait le 29/10/2026
+      (`nostr-protocol/nips`, `66.md`). Écarts avec le document : les exigences sont des tags
+      `R` (`auth`, `writes`, `pow`, `payment`, `!` pour faux), sans niveau de preuve de
+      travail ; les kinds acceptés ou refusés sont des tags `k` ; `n` donne le réseau (`tor`),
+      `g` la position ; le contenu peut porter le document NIP-11 ; la NIP demande de ne pas
+      se fier à un seul moniteur et d'écarter un résultat qui retirerait une part
+      déraisonnable des relais. La liste des moniteurs existants passe au lot 9 (réseau réel).
+- [x] Règle : candidat si *m* moniteurs sur *n* le signalent et s'il passe `a6` ; annuaire
       donné à `a1` ou `a0`.
-- [ ] Mécanisme par les ports : abonnement aux moniteurs ; repli sur les listes GitHub.
-- [ ] Tests : rapports figés, seuil, moniteur hostile seul sans effet.
+- [x] Mécanisme par les ports : abonnement aux moniteurs ; repli sur les listes GitHub.
+- [x] Tests : rapports figés, seuil, moniteur hostile seul sans effet.
+
+Fait : `a2::{Report, Announcement, Directory, Candidate, Watcher}` ; constat retenu à la
+majorité des moniteurs de confiance qui signalent le relais ; un moniteur hostile seul est
+sans effet ; garde-fou à 50 % (`A2_MAX_REMOVED_SHARE`). Console : `--monitors`,
+`--monitor-relays`, cache `monitors.csv`.
 
 ### Lot 7 : `a3`, relais annoncés ⬜
 
@@ -360,3 +370,4 @@ d'entrée.
 - 29/10/2026 : lot 3 fait (A0).
 - 29/10/2026 : lot 4 fait (A6).
 - 29/10/2026 : lot 5 fait (A1).
+- 29/10/2026 : lot 6 fait (A2).
