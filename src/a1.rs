@@ -2,7 +2,7 @@
 // SPDX-License-Identifier: Unlicense OR 0BSD
 
 //! `A1`: rendezvous hashing (HRW), salted, instead of distance
-//! (`bitchat-envelope/Documents/geohash-relays-requirements-and-alternatives.md`,
+//! (`docs/geohash-relays-requirements-and-alternatives.md`,
 //! §5 A1; decision G8 of `PLAN_ET1.md`).
 //!
 //! Each candidate gets a score for the cell; each peer keeps the *k* best:

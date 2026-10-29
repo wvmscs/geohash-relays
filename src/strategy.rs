@@ -3,8 +3,8 @@
 
 //! How a client picks the relays of a channel, behind one interface, so that
 //! the apps' rule (`AS`) and the alternatives (`A0` to `A6`) can be swapped
-//! and compared. See bitchat-envelope
-//! `Documents/geohash-relays-requirements-and-alternatives.md`.
+//! and compared. See
+//! `docs/geohash-relays-requirements-and-alternatives.md`.
 //!
 //! A strategy is an **immutable snapshot** (decision G2 of `PLAN_ET1.md`):
 //! when its inputs change (relays found dead, presences seen, monitor

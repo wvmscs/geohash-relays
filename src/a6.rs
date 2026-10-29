@@ -2,7 +2,7 @@
 // SPDX-License-Identifier: Unlicense OR 0BSD
 
 //! `A6`: automatic relay qualification, NIP-11 and probes
-//! (`bitchat-envelope/Documents/geohash-relays-requirements-and-alternatives.md`,
+//! (`docs/geohash-relays-requirements-and-alternatives.md`,
 //! §5 A6, requirements of §3).
 //!
 //! Not a rendezvous: a **filter** of the candidates, before they are ranked,

@@ -38,7 +38,7 @@ snapshot: when what it knows changes, the host builds a new one.
 without I/O (`sansio`); [geohash-relays-net](https://github.com/wvmscs/geohash-relays-net)
 runs them with the communication of the iOS app, the Android app or bitchat-console.
 The alternatives come from
-`bitchat-envelope/Documents/geohash-relays-requirements-and-alternatives.md`; progress is in
+[docs/geohash-relays-requirements-and-alternatives.md](docs/geohash-relays-requirements-and-alternatives.md); progress is in
 `PLAN_ET1.md` (branch `strategies`).
 
 ## Why the two apps drift apart
@@ -46,8 +46,9 @@ The alternatives come from
 iOS reads the reviewed `relays/online_relays_gps.csv` of the bitchat repository; Android reads
 the daily, unreviewed `nostr_relays.csv` of georelays. The lists differ, and the rules differ
 (deduplication, tie-break). For the same channel the two apps can choose different relays, and
-then iOS and Android users do not see each other. Measured on real lists: see bitchat-geohash
-and bitchat-envelope `Documents/relay-selection-corrections.md`.
+then iOS and Android users do not see each other. Measured on real lists: see
+[docs/relay-selection-corrections.md](docs/relay-selection-corrections.md) and
+[docs/geohash-relays-updates.md](docs/geohash-relays-updates.md).
 
 ## The strategies
 
@@ -113,8 +114,8 @@ one (A2) by any strategy.
 ## Tests
 
 `cargo test`: the expected choices on the frozen lists of `tests/data/` are those of
-bitchat-geohash and of bitchat-envelope's `geohash_map`, after the selection corrections of
-27/10/2026. The neighbours are checked against the `geohash` crate.
+bitchat-geohash and of an earlier prototype, after the selection corrections of 27/10/2026
+([docs/relay-selection-corrections.md](docs/relay-selection-corrections.md)). The neighbours are checked against the `geohash` crate.
 
 ## Licence
 

@@ -2,7 +2,7 @@
 // SPDX-License-Identifier: Unlicense OR 0BSD
 
 //! `A4`: republisher peers, which connect the relay sets
-//! (`bitchat-envelope/Documents/geohash-relays-requirements-and-alternatives.md`,
+//! (`docs/geohash-relays-requirements-and-alternatives.md`,
 //! §5 A4, and §6 step 1: the only approach usable with no change to the
 //! apps).
 //!

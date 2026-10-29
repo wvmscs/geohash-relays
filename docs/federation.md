@@ -1,7 +1,7 @@
 # A5: a federation of synchronised relays
 
 How relays of a region can serve BitChat location channels together (A5 of
-`bitchat-envelope/Documents/geohash-relays-requirements-and-alternatives.md`). A client then
+[geohash-relays-requirements-and-alternatives.md](geohash-relays-requirements-and-alternatives.md)). A client then
 needs one member, not the same relay as its neighbours (`a5::Federation`). This is
 infrastructure: the operators must agree.
 

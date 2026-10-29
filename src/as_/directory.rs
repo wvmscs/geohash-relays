@@ -63,8 +63,8 @@ impl RelayDirectory {
     /// [`conflict`](Self::conflict): iOS rejects such a list.
     ///
     /// Sources: iOS `bitchat/Nostr/GeoRelayDirectory.swift`; Android
-    /// `app/src/main/java/com/bitchat/android/nostr/RelayDirectory.kt` (see bitchat-envelope
-    /// `Documents/relay-selection-corrections.md`).
+    /// `app/src/main/java/com/bitchat/android/nostr/RelayDirectory.kt` (see
+    /// `docs/relay-selection-corrections.md`).
     ///
     /// Android keeps every line as is: no lowercasing, no `:443` removal, no
     /// deduplication, so `host` and `host:443` are two entries.

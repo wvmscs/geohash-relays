@@ -5,8 +5,8 @@
 //! Ported from bitchat-geohash (`src/select.rs`, lots 1 and 11 bis).
 //!
 //! Sources: iOS `GeoRelayDirectory.closestRelays(toGeohash:count:)`; Android
-//! `RelayDirectory.closestRelaysForGeohash`, commit `eed88190c0` (see bitchat-envelope
-//! `Documents/relay-selection-corrections.md`).
+//! `RelayDirectory.closestRelaysForGeohash`, commit `eed88190c0` (see
+//! `docs/relay-selection-corrections.md`).
 
 use crate::directory::{Platform, RelayDirectory, normalize_url};
 use crate::error::Result;

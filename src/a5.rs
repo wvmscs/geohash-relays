@@ -2,7 +2,7 @@
 // SPDX-License-Identifier: Unlicense OR 0BSD
 
 //! `A5`: federation of synchronised relays (NIP-77, negentropy)
-//! (`bitchat-envelope/Documents/geohash-relays-requirements-and-alternatives.md`,
+//! (`docs/geohash-relays-requirements-and-alternatives.md`,
 //! §5 A5; decision G11 of `PLAN_ET1.md`).
 //!
 //! Relays of a region synchronise the kinds 20000, 20001 and 1 that have a

@@ -4,3 +4,5 @@
 /target
 .DS_Store
 .env
+# Rules of the author's local checkout (see AGENTS.md).
+/AGENTS.local.md

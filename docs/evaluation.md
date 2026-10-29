@@ -2,7 +2,7 @@
 
 How the strategies of this crate compare, on the frozen relay lists of the apps and on the
 real network (29/10/2026). The strategies are those of
-`bitchat-envelope/Documents/geohash-relays-requirements-and-alternatives.md` (§5); `AS` is
+[geohash-relays-requirements-and-alternatives.md](geohash-relays-requirements-and-alternatives.md) (§5); `AS` is
 what the apps do today. Reproduce the bench with `cargo run --release --example compare`.
 
 ## Bench (frozen lists)

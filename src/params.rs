@@ -4,8 +4,8 @@
 //! Every constant of the strategies, and of the communication code of
 //! `geohash-relays-net`, in one place (decision G14 of `PLAN_ET1.md`). Each
 //! one says where it comes from: an app source (file and function), the
-//! requirements document (`bitchat-envelope/Documents/
-//! geohash-relays-requirements-and-alternatives.md`, `§` and `R` numbers), or
+//! requirements document (`docs/geohash-relays-requirements-and-alternatives.md`,
+//! `§` and `R` numbers), or
 //! a decision of the plan (`G` numbers).
 
 use std::time::Duration;

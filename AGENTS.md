@@ -9,19 +9,23 @@ client so that strategies can be compared and swapped:
 
 - `as_` (`AS`): what the iOS and Android apps do today (each app's list and rule);
 - `a0` to `a6`: the alternatives of
-  `../bitchat-envelope/Documents/geohash-relays-requirements-and-alternatives.md`.
+  [docs/geohash-relays-requirements-and-alternatives.md](docs/geohash-relays-requirements-and-alternatives.md).
 
-It serves `bitchat-console` first (decision D2 of `../bitchat-console/SPECIFICATIONS.md`),
-`bitchat-geohash` later, and is meant to be proposed to the BitChat apps (iOS, Android), hence
-the public-domain licence (Unlicense, like the iOS app). Progress is tracked in
-`../bitchat-console/PLAN_ET1.md` (lot 1, `AS`) and in `PLAN_ET1.md` (the alternatives A0 to
-A6).
+It serves [bitchat-console](https://github.com/wvmscs/bitchat-console) first (its decision
+D2), [bitchat-geohash](https://github.com/wvmscs/bitchat-geohash) too, and is meant to be
+proposed to the BitChat apps (iOS, Android), hence the public-domain licence (Unlicense, like
+the iOS app). Progress is tracked in bitchat-console's `PLAN_ET1.md` (lot 1, `AS`) and in
+`PLAN_ET1.md` (the alternatives A0 to A6).
+
+Rules that only concern the author's local checkout, if any, are in `AGENTS.local.md`
+(not committed).
 
 ## Constraints
 
 - Keep it small, pure and dependency-light: no network, no async, no I/O beyond parsing the
   text given by the caller (relay lists, NIP-11 documents, monitor reports). The network is in
-  `../geohash-relays-net` (GPL-3.0-or-later), which depends on this crate, never the reverse.
+  [geohash-relays-net](https://github.com/wvmscs/geohash-relays-net) (GPL-3.0-or-later),
+  which depends on this crate, never the reverse.
 - Strategies that talk to relays are machines without I/O (`sansio`: inputs in, actions
   out, the time given), run by `geohash-relays-net` (decision G13).
 - Every constant lives in `params`, with its source (decision G14): none elsewhere.

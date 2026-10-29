@@ -2,7 +2,7 @@
 // SPDX-License-Identifier: Unlicense OR 0BSD
 
 //! `A3`: relays announced in presence events, self-organisation
-//! (`bitchat-envelope/Documents/geohash-relays-requirements-and-alternatives.md`,
+//! (`docs/geohash-relays-requirements-and-alternatives.md`,
 //! §5 A3; decision G9 of `PLAN_ET1.md`).
 //!
 //! Each presence (kind 20001) also names the relays its author writes to:

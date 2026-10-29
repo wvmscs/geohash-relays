@@ -2,7 +2,7 @@
 // SPDX-License-Identifier: Unlicense OR 0BSD
 
 //! `A0`: correct the current design and keep its principle
-//! (`bitchat-envelope/Documents/geohash-relays-requirements-and-alternatives.md`,
+//! (`docs/geohash-relays-requirements-and-alternatives.md`,
 //! §5 A0; decision G7 of `PLAN_ET1.md`).
 //!
 //! * **One list and one rule** for both apps: the iOS rule (one entry per

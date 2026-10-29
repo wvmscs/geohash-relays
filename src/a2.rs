@@ -2,7 +2,7 @@
 // SPDX-License-Identifier: Unlicense OR 0BSD
 
 //! `A2`: decentralised directory from monitors (NIP-66)
-//! (`bitchat-envelope/Documents/geohash-relays-requirements-and-alternatives.md`,
+//! (`docs/geohash-relays-requirements-and-alternatives.md`,
 //! §5 A2).
 //!
 //! Independent monitors publish, for each relay, a kind 30166 report (`d`:

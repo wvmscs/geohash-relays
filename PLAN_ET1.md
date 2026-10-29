@@ -1,8 +1,8 @@
 # geohash-relays : plan de l'étape 1 (stratégies A0 à A6)
 
 Plan de réalisation des alternatives A0 à A6 de
-`../bitchat-envelope/Documents/geohash-relays-requirements-and-alternatives.md` (§5, §6, §7),
-à côté de la stratégie `AS` déjà en place (lot 1 de `../bitchat-console/PLAN_ET1.md`).
+[docs/geohash-relays-requirements-and-alternatives.md](docs/geohash-relays-requirements-and-alternatives.md) (§5, §6, §7),
+à côté de la stratégie `AS` déjà en place (lot 1 du `PLAN_ET1.md` de bitchat-console).
 Créé le 29/10/2026, refondu le même jour selon les consignes de l'utilisateur.
 
 ## Principe
@@ -109,7 +109,7 @@ Toutes validées le 29/10/2026, sauf mention contraire.
 | G3 ✅ | Async | Feature `console` : ports async (tokio, comme la console) ; features `bitchat` et `bitchat-android` : ports à rappels synchrones, plus proches de Swift et Kotlin et des portages du lot 11. Validée le 29/10/2026. |
 | G4 ✅ | AGENTS.md | `geohash-relays` garde « no network, no async, no I/O » ; on y ajoute les automates sans E/S (G13), le module `params` (G14) et la règle de licence (G5). `geohash-relays-net` a son propre AGENTS.md : GPL ; publication réelle seulement sur action de l'utilisateur ; **Tor obligatoire (hors bouclage) pour la feature `console` seulement**, car c'est une contrainte de la console : les implémentations actuelles de bitchat et bitchat-android ne l'imposent pas (Tor au choix). |
 | G5 ✅ | Dépendances | `sha2` (A1, empreinte de liste A0) ; `serde_json` (NIP-11, NIP-66) ; `futures` ou `async-trait` seulement dans `geohash-relays-net` ; pas de crypto de signature : l'hôte vérifie et signe (il le fait déjà). **Toute dépendance, directe ou transitive, doit être compatible avec `Unlicense OR 0BSD`** (licences permissives seulement). Vérifié le 29/10/2026 : `sha2`, `serde_json`, `async-trait`, `futures`, `thiserror` sont `MIT OR Apache-2.0`. Contrôle automatique en CI (`cargo deny check licenses`, liste blanche). **Sinon** : le code concerné va dans une crate de communication à part, **GPL-3.0-or-later** (G12). |
-| G12 ✅ | Crate de communication | **Retenue d'emblée** (29/10/2026), pas seulement en repli : crate `geohash-relays-net`, GPL-3.0-or-later (`LICENSES/GPL-3.0-or-later.txt`, en-têtes SPDX `GPL-3.0-or-later`, REUSE), dépôt propre `wvmscs/geohash-relays-net` (privé, `main`), propre `[workspace]`. Elle porte les 3 features et reçoit le code de communication de la console (`Connector`, `relay.rs`, `lists.rs`, Arti). bitchat-console et bitchat-geohash en dépendent ; `geohash-relays` n'en dépend jamais, et reste ainsi proposable aux apps. |
+| G12 ✅ | Crate de communication | **Retenue d'emblée** (29/10/2026), pas seulement en repli : crate `geohash-relays-net`, GPL-3.0-or-later (`LICENSES/GPL-3.0-or-later.txt`, en-têtes SPDX `GPL-3.0-or-later`, REUSE), dépôt propre `wvmscs/geohash-relays-net` (`main`), propre `[workspace]`. Elle porte les 3 features et reçoit le code de communication de la console (`Connector`, `relay.rs`, `lists.rs`, Arti). bitchat-console et bitchat-geohash en dépendent ; `geohash-relays` n'en dépend jamais, et reste ainsi proposable aux apps. |
 | G13 ✅ | Automates sans E/S | Les stratégies qui communiquent sont des automates purs dans `geohash-relays` (événements en entrée, actions en sortie, heure fournie) ; `geohash-relays-net` les exécute. Les features `bitchat` et `bitchat-android` **n'ignorent pas** l'attente de `OK`, `AUTH` et `CLOSED` : ces fonctions en font partie, et une implémentation compatible, qui modifie les codes Swift et Kotlin, est proposée en PR au lot 12. |
 | G14 ✅ | Constantes | Toutes les constantes dans un seul module, `params` de `geohash-relays`, source citée pour chacune ; `GEO_RELAY_COUNT` y passe (réexporté à la racine). Demandé avec la validation de G7 à G11. |
 | G6 ✅ | `Selected` | Généralisé : rang dans l'ordre de la stratégie, rôle (lecture-écriture, écriture seule), origine (`Ios`, `Android`, `Shared`, `Announced`, …) ; rangs iOS et Android gardés pour `as_`. Version 0.2.0, console et bitchat-geohash adaptées au même lot. |
@@ -117,7 +117,7 @@ Toutes validées le 29/10/2026, sauf mention contraire.
 | G8 ✅ | A1 | `SHA-256(sel ‖ préfixe(cellule, p) ‖ url normalisée)`, k = 5, p = 4 ; époque = jour UTC ; sel fourni par l'appelant ; écriture vers les deux époques pendant 1 h autour du changement. |
 | G9 ✅ | A3 | Tag `["relay", url]` (pas `r`, pris par le pont maillé), au plus 5 par présence ; k = 2 clés distinctes, preuve de travail ≥ 8 bits ; amorce A1 ou `as_`. |
 | G10 ✅ | A4 | Mode optionnel, désactivé par défaut ; publication réelle seulement sur action de l'utilisateur (invariant de la console). |
-| G11 ✅ | A5 | Filtre de synchronisation documenté (`strfry sync`), détection des omissions ; essai entre `relay.famillevital.club` et un second strfry local. |
+| G11 ✅ | A5 | Filtre de synchronisation documenté (`strfry sync`), détection des omissions ; essai entre le relais de test de l’utilisateur (`BITCHAT_TEST_RELAY`) et un second strfry local. |
 
 ## Lots
 
@@ -142,8 +142,8 @@ Toutes validées le 29/10/2026, sauf mention contraire.
 - [x] Squelette : `Cargo.toml` (GPL-3.0-or-later, propre `[workspace]`, dépendance git sur
       `geohash-relays`), `LICENSE`, `LICENSES/GPL-3.0-or-later.txt`, `REUSE.toml`, en-têtes
       SPDX, `AGENTS.md` (G4), README, CHANGELOG, GitHub Action (fmt, clippy, tests et
-      `reuse lint` pour chaque feature). Dépôt `wvmscs/geohash-relays-net` créé le 29/10/2026
-      (privé), à la demande de l'utilisateur.
+      `reuse lint` pour chaque feature). Dépôt `wvmscs/geohash-relays-net` créé le 29/10/2026,
+      à la demande de l'utilisateur.
 - [x] Features `bitchat`, `bitchat-android`, `console`, exclusives (`compile_error!`).
 - [x] Ports (G2, G3) et port factice pour les tests.
 - [x] Feature `console` : `Connector`, `Socks5`, `Loopback`, Arti, `relay.rs`, `lists.rs`
@@ -320,7 +320,7 @@ porte les annonces : relais partagés A0, A1 ou `AS`.
 - [x] Mécanisme par les ports : comparaison des ids vus par plusieurs relais.
 - [x] Essai local : deux relais de test et un membre injoignable ; la note qui manque à un
       membre est trouvée (`--federation-check`).
-- [ ] Essai réel : `relay.famillevital.club` et un strfry local synchronisés : **reporté au
+- [ ] Essai réel : le relais de test de l’utilisateur (`BITCHAT_TEST_RELAY`) et un strfry local synchronisés : **reporté au
       lot 9**, avec l'utilisateur (installer et configurer strfry sur ses machines).
 
 Fait : `a5::{Federation, Comparer, omissions, sync_filter}`, `docs/federation.md`
@@ -346,11 +346,12 @@ durée de vie des éphémères ≥ 1 h, R11) ; console `--strategy A5 --federati
 - [x] Question 4 (coût de capture) : banc du lot 1.
 - [ ] Questions 1 et 2 (rétention, accès par Tor) : écrivent sur les relais :
       `bitchat-console --qualify-probe`, **sur décision de l'utilisateur**.
-- [ ] A5 réel : `relay.famillevital.club` et un strfry local synchronisés (lot 8).
+- [ ] A5 réel : le relais de test de l’utilisateur (`BITCHAT_TEST_RELAY`) et un strfry local synchronisés (lot 8).
 - [ ] Essai avec l'app BitChat de l'utilisateur (téléportation) : A4 relie un pair iOS et un
       pair Android sans relais commun.
-- [ ] Texte proposé pour une version 0.3 du document d'exigences (bitchat-envelope en lecture
-      seule) : à rédiger une fois les questions 1 et 2 mesurées.
+- [ ] Texte proposé pour une version 0.3 du document d'exigences
+      (`docs/geohash-relays-requirements-and-alternatives.md`, copie de la version 0.2) : à
+      rédiger une fois les questions 1 et 2 mesurées.
 
 ### Lot 10 : évaluation et proposition ✅ (à relire par l'utilisateur)
 
