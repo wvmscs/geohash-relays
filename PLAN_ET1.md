@@ -420,8 +420,12 @@ la liste s'enrichit), `--compat bitchat` (CSV des relais compatibles). Décision
       Proposé, en attente d'accord : « utilisable » = aucun refus A6 seulement ; exigences de
       chaque stratégie sur un candidat déclarées ici (localisation, chemin, `.onion`) ;
       `relay-census --eligibility` (retenus et écartés par raison, par stratégie) ; critère
-      ajouté au banc et à `docs/evaluation.md` ; `--compat bitchat` au profil exact des apps
-      (port ≠ 443 admis, chemin exclu pour iOS seulement, un CSV par app). Relevé au passage :
+      ajouté au banc et à `docs/evaluation.md` ; `--compat bitchat` : **un seul profil, un seul
+      CSV** (précision de l'utilisateur : les PR d'intégration rendront les implémentations Swift
+      et Kotlin identiques), la règle commune de `geohash-relays` (`normalize_url`) : port ≠ 443
+      et chemin admis (champ `host[:port][/path]`), `.onion` et relais non localisé écartés
+      pour les stratégies par distance seulement ; CSV destiné aux apps harmonisées, pas aux
+      apps actuelles (iOS perdrait le chemin). Relevé au passage :
       les deux apps acceptent un port ≠ 443 (iOS le garde, Android garde le texte) ; R1 du
       document l'exige, mais c'est une proposition.
 - [ ] `--probe` seulement sur accord de l'utilisateur.
