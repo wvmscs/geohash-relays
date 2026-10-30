@@ -399,8 +399,13 @@ la liste s'enrichit), `--compat bitchat` (CSV des relais compatibles). Décision
       (avertissement R8 : 20 abonnements). Constats : 30 s par relais ne suffisaient pas par
       Tor (porté à 90 s) ; nos.lol ne répond pas par Tor (R3) ; relay.damus.io ne renvoie
       rien, même en direct.
-- [ ] Essai de la localisation sur un vrai fichier DB-IP Lite (à télécharger), et d'un
-      `--refresh` complet (plusieurs tours) ; `--probe` seulement sur accord de l'utilisateur.
+- [x] Localisation sur un vrai fichier DB-IP Lite (octobre 2026, gardé hors dépôt) : un tour
+      par Tor depuis la base précédente, 38 relais lus, 26 ont répondu, 4 473 listes,
+      673 relais nouveaux ; 25 localisés (relay.nostr.watch : nom non résolu par Tor),
+      26 qualifiés (3 refusés : R6) ; CSV BitChat de 22 relais, coordonnées cohérentes avec la
+      liste iOS (`*.nostr1.com` à New York).
+- [ ] `--refresh` complet (plusieurs tours, 700 relais et plus) ; `--probe` seulement sur
+      accord de l'utilisateur.
 
 ## Journal
 
@@ -437,3 +442,5 @@ la liste s'enrichit), `--compat bitchat` (CSV des relais compatibles). Décision
 - 30/10/2026 : lot 13, recensement des relais (G15) : automate `census` ici, binaire
   `relay-census` dans `geohash-relays-net`, lancement A6 partagé avec la console. Essai réel
   par Tor en lecture seule (un tour) ; localisation à essayer avec un fichier DB-IP.
+- 30/10/2026 : lot 13, localisation DB-IP essayée (un tour par Tor : 711 relais connus, CSV
+  BitChat de 22 relais).
