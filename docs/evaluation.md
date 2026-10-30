@@ -40,16 +40,18 @@ lists through Tor from three relays, 3,371 relays known, 1,138 answered. The req
 (A6) are the same for all; only the need of a place differs: a strategy that ranks by distance
 leaves out the relays without one (`.onion`, address not located).
 
-| Strategy | Needs a place | Usable | Did not answer | Refused (A6) | `ws://` | No place |
-|---|---|---|---|---|---|---|
-| AS, A0, A4 | yes | 886 | 2,233 | 164 | 34 | **54** |
-| A1, A2, A3, A5 | no | **940** | 2,233 | 164 | 34 | 0 |
+| Strategy | Needs a place | Usable addresses | Servers | Did not answer | Refused (A6) | `ws://` | No place |
+|---|---|---|---|---|---|---|---|
+| AS, A0, A4 | yes | 886 | **666** | 2,233 | 164 | 34 | **54** |
+| A1, A2, A3, A5 | no | **940** | **710** | 2,233 | 164 | 34 | 0 |
 
-Ports other than 443 and paths are kept by the common rule (`normalize_url`): 886 usable
-addresses are only **666 servers**; 152 servers appear under several paths (220 addresses
-more, up to 11 for one server: per-user `/inbox` and generated paths). A strategy that ranks
-by distance would give one server several of a cell's 5 places, as Android does with `host`
-and `host:443`, only worse: how to count a server is an open question (`PLAN_ET1.md`, lot 13).
+Ports other than 443 and paths are kept by the common rule (`normalize_url`), but one server
+is often named under several paths (per-user `/inbox`, generated paths: 152 servers, up to 11
+addresses for one). A list where it appeared under each would give it several of a cell's 5
+places, as Android does with `host` and `host:443`, only worse (a cheap capture). The census
+keeps **one address per server** (`census::server`: scheme, host and port): the one without a
+path, else the one most relay lists name. To be confirmed by the user (`PLAN_ET1.md`,
+lot 13), with whether the strategies themselves should count servers this way.
 Reproduce with `relay-census --refresh`, then `relay-census --eligibility`.
 
 ## Real network (read only)

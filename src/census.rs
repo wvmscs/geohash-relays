@@ -116,6 +116,20 @@ fn public_host(host: &str) -> bool {
         )
 }
 
+/// The server an address designates: scheme, host and port, without the
+/// path. One server can be named under many paths (per-user `/inbox`,
+/// generated paths): a list built from the census keeps one address per
+/// server, so that a server never takes several places of a cell (as
+/// Android does with `host` and `host:443`). The address must be
+/// normalised ([`relay_url`]).
+pub fn server(url: &str) -> &str {
+    let after = url.find("://").map_or(0, |i| i + 3);
+    match url[after..].find('/') {
+        Some(slash) => &url[..after + slash],
+        None => url,
+    }
+}
+
 /// The relays of a NIP-65 list (`r` tags, read or write alike), checked and
 /// normalised, in order, once each. Empty for another kind.
 pub fn relays_of(event: &EventMeta) -> Vec<String> {
@@ -449,6 +463,23 @@ mod tests {
             assert_eq!(relay_url(bad), None, "{bad}");
         }
         assert_eq!(relay_url(&format!("wss://{}.org", "a".repeat(300))), None);
+    }
+
+    #[test]
+    fn servers_of_addresses() {
+        assert_eq!(
+            server("wss://relay.example.org/inbox"),
+            "wss://relay.example.org"
+        );
+        assert_eq!(
+            server("wss://relay.example.org:7777/a/b"),
+            "wss://relay.example.org:7777"
+        );
+        assert_eq!(server("wss://relay.example.org"), "wss://relay.example.org");
+        assert_eq!(
+            server("ws://[2001:db8::1]:8080/x"),
+            "ws://[2001:db8::1]:8080"
+        );
     }
 
     #[test]

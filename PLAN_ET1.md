@@ -439,12 +439,18 @@ la liste s'enrichit), `--compat bitchat` (CSV des relais compatibles). Décision
       `--compat bitchat` à la règle commune (un CSV) ; section « Relays a strategy leaves out »
       de `docs/evaluation.md`. Recensement du 30/10 : AS, A0, A4 : 886 relais utilisables
       (54 sans localisation) ; A1, A2, A3, A5 : 940.
-- [ ] **Constat à trancher** : à la règle commune, les 886 adresses ne sont que 666 serveurs ;
+- [x] **Constat à trancher** : à la règle commune, les 886 adresses ne sont que 666 serveurs ;
       152 serveurs sous plusieurs chemins (220 adresses de plus, jusqu'à 11 pour un serveur :
       `/inbox` par utilisateur, chemins générés). Une stratégie par distance donnerait plusieurs
       des 5 places d'une cellule à un même serveur (comme Android avec `host` et `host:443`, en
       pire) : risque de capture. Question posée à l'utilisateur : compter un serveur par hôte
       (et port), une seule adresse par serveur ?
+      **Fait en l'absence de l'utilisateur (option recommandée, à valider)** : `census::server`
+      (schéma, hôte, port, sans chemin) ; le recensement garde une adresse par serveur (celle
+      sans chemin, sinon la plus citée par les listes NIP-65) pour le CSV, le diff `--legacy`
+      et le compte de `--eligibility` (colonne « Servers »). `normalize_url`, les stratégies et
+      le banc **inchangés** : leur façon de compter un serveur reste à décider. Résultat : CSV
+      de 666 serveurs, sans doublon ; `--legacy` iOS 164 en commun (153 avant), Android 206.
 - [ ] `--probe` seulement sur accord de l'utilisateur.
 
 ## Journal
@@ -489,3 +495,5 @@ la liste s'enrichit), `--compat bitchat` (CSV des relais compatibles). Décision
   critères propres aux apps actuelles, proposition « éligibilité par stratégie » en attente.
 - 30/10/2026 : lot 13, éligibilité par stratégie (`Needs`, `--eligibility`), CSV à la règle
   commune ; constat : chemins multiples d'un même serveur (666 serveurs pour 886 adresses).
+- 30/10/2026 (nuit, utilisateur absent) : une adresse par serveur dans le recensement
+  (`census::server`, à valider) ; règle commune et stratégies inchangées.

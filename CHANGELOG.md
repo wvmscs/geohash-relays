@@ -13,6 +13,8 @@
   `census::{STRATEGIES, Candidate, Exclusion, exclusion}`: why a strategy cannot use a relay
   (never read, no answer, not qualified, refused by A6, `ws://`, no place). Ports and paths
   are never a reason (the common rule keeps them).
+- `census::server`: the server an address designates (scheme, host, port; no path), so that a
+  list built from the census keeps one address per server.
 - `select::haversine_km` is public (the census measures how far its places are from the
   lists').
 
