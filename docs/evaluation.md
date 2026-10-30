@@ -48,10 +48,12 @@ leaves out the relays without one (`.onion`, address not located).
 Ports other than 443 and paths are kept by the common rule (`normalize_url`), but one server
 is often named under several paths (per-user `/inbox`, generated paths: 152 servers, up to 11
 addresses for one). A list where it appeared under each would give it several of a cell's 5
-places, as Android does with `host` and `host:443`, only worse (a cheap capture). The census
-keeps **one address per server** (`census::server`: scheme, host and port): the one without a
-path, else the one most relay lists name. To be confirmed by the user (`PLAN_ET1.md`,
-lot 13), with whether the strategies themselves should count servers this way.
+places, as Android does with `host` and `host:443`, only worse (a cheap capture), and the same
+information many times brings nothing. So a server counts once (`server`: scheme, host and
+port): in what the census produces (the address without a path, else the one most relay lists
+name), and in the alternatives A0 to A3 and A5 (`one_per_server`: the smallest address, the
+same whatever the order of the list). `AS` stays what the apps do, and A4 follows it. The
+frozen lists have no paths: the bench above does not change.
 Reproduce with `relay-census --refresh`, then `relay-census --eligibility`.
 
 ## Real network (read only)

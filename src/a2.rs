@@ -244,7 +244,7 @@ impl Directory {
                 .unwrap_or((0.0, 0.0));
             csv.push_str(&format!("{},{lat},{lon}\n", c.relay));
         }
-        RelayDirectory::parse(&csv, Platform::Ios)
+        RelayDirectory::parse(&csv, Platform::Ios).one_per_server()
     }
 
     /// NIP-66 risk mitigation: `Ok(list filtered)` unless the monitors would

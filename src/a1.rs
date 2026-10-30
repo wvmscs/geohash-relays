@@ -29,7 +29,7 @@
 //!
 //! Without a salt the choice can be ground offline: tests only.
 
-use std::collections::{BTreeMap, BTreeSet};
+use std::collections::BTreeMap;
 
 use sha2::{Digest, Sha256};
 
@@ -95,14 +95,14 @@ impl HrwStrategy {
     /// On the relays of `list` (one per server), k = 5, p = 4, no salt, at
     /// time 0.
     pub fn new(list: &RelayDirectory) -> Self {
-        let mut seen = BTreeSet::new();
         let candidates = list
+            .clone()
+            .one_per_server()
             .relays()
             .iter()
             .filter_map(|r| {
-                let url = normalize_url(&r.url)?;
-                seen.insert(url.clone()).then_some(GeoRelay {
-                    url,
+                Some(GeoRelay {
+                    url: normalize_url(&r.url)?,
                     lat: r.lat,
                     lon: r.lon,
                     km: f64::INFINITY,

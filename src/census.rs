@@ -22,6 +22,7 @@ use std::collections::{BTreeMap, BTreeSet, VecDeque};
 use std::net::IpAddr;
 
 use crate::directory::normalize_url;
+pub use crate::directory::server;
 use crate::params::{
     CENSUS_CONCURRENCY, CENSUS_LIST_LIMIT, CENSUS_MAX_FUTURE_SECS, CENSUS_MAX_URL_BYTES,
     CENSUS_TIMEOUT_SECS, KIND_RELAY_LIST,
@@ -114,20 +115,6 @@ fn public_host(host: &str) -> bool {
             *labels.last().unwrap_or(&""),
             "local" | "localhost" | "internal" | "lan"
         )
-}
-
-/// The server an address designates: scheme, host and port, without the
-/// path. One server can be named under many paths (per-user `/inbox`,
-/// generated paths): a list built from the census keeps one address per
-/// server, so that a server never takes several places of a cell (as
-/// Android does with `host` and `host:443`). The address must be
-/// normalised ([`relay_url`]).
-pub fn server(url: &str) -> &str {
-    let after = url.find("://").map_or(0, |i| i + 3);
-    match url[after..].find('/') {
-        Some(slash) => &url[..after + slash],
-        None => url,
-    }
 }
 
 /// The relays of a NIP-65 list (`r` tags, read or write alike), checked and

@@ -22,7 +22,7 @@
 use std::collections::{BTreeMap, BTreeSet};
 use std::sync::Arc;
 
-use crate::directory::normalize_url;
+use crate::directory::{normalize_url, one_per_server, server};
 use crate::error::Result;
 use crate::params::{
     A3_ANNOUNCE_TTL_SECS, A3_MAX_TAGS, A3_MIN_KEYS, A3_MIN_POW_BITS, A3_TAG, KIND_PRESENCE,
@@ -33,14 +33,15 @@ use crate::strategy::{GeoRelay, Origin, Role, Selected, Strategy};
 /// What this strategy asks of a candidate relay: A3 takes the relays the cell's peers announce.
 pub const NEEDS: crate::strategy::Needs = crate::strategy::Needs { place: false };
 
-/// The tags a presence adds to announce `relays` (normalised, distinct, at
-/// most [`A3_MAX_TAGS`]).
+/// The tags a presence adds to announce `relays` (normalised, one address
+/// per server, at most [`A3_MAX_TAGS`]).
 pub fn announce_tags(relays: &[String]) -> Vec<Vec<String>> {
+    let kept = one_per_server(relays.iter().filter_map(|r| normalize_url(r)));
     let mut seen = BTreeSet::new();
     relays
         .iter()
         .filter_map(|r| normalize_url(r))
-        .filter(|r| seen.insert(r.clone()))
+        .filter(|r| kept.contains(r) && seen.insert(r.clone()))
         .take(A3_MAX_TAGS)
         .map(|r| vec![A3_TAG.to_owned(), r])
         .collect()
@@ -85,21 +86,26 @@ impl PresenceBook {
     }
 
     /// Relays of `cell` announced by enough distinct recent keys, the most
-    /// announced first: (relay, keys).
+    /// announced first: (relay, keys). By server: a key counts once for a
+    /// server, whatever the paths it names, and the smallest address named
+    /// stands for it.
     pub fn announced(&self, cell: &str, now: i64) -> Vec<(String, usize)> {
-        let mut count: BTreeMap<&str, usize> = BTreeMap::new();
+        let mut count: BTreeMap<&str, (usize, &str)> = BTreeMap::new();
         for (relays, at) in self.cells.get(cell).into_iter().flat_map(|k| k.values()) {
             if now - at > A3_ANNOUNCE_TTL_SECS {
                 continue;
             }
+            let mut seen = BTreeSet::new();
             for r in relays {
-                *count.entry(r.as_str()).or_default() += 1;
+                let e = count.entry(server(r)).or_insert((0, r.as_str()));
+                e.0 += usize::from(seen.insert(server(r)));
+                e.1 = e.1.min(r.as_str());
             }
         }
         let mut out: Vec<(String, usize)> = count
-            .into_iter()
-            .filter(|(_, n)| *n >= A3_MIN_KEYS)
-            .map(|(r, n)| (r.to_owned(), n))
+            .into_values()
+            .filter(|(n, _)| *n >= A3_MIN_KEYS)
+            .map(|(n, r)| (r.to_owned(), n))
             .collect();
         out.sort_by(|a, b| b.1.cmp(&a.1).then_with(|| a.0.cmp(&b.0)));
         out
@@ -131,7 +137,7 @@ impl Announced {
         for (url, _) in self.book.announced(geohash, self.now) {
             if !out
                 .iter()
-                .any(|s| normalize_url(&s.relay.url).as_deref() == Some(url.as_str()))
+                .any(|s| normalize_url(&s.relay.url).is_some_and(|u| server(&u) == server(&url)))
             {
                 let rank = out.len() + 1;
                 out.push(Selected::new(

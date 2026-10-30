@@ -37,7 +37,9 @@ pub mod sansio;
 pub mod strategy;
 
 pub use as_::{AppStrategy, Apps, directory, select};
-pub use directory::{DirectoryRelay, Platform, RelayDirectory, normalize_url};
+pub use directory::{
+    DirectoryRelay, Platform, RelayDirectory, normalize_url, one_per_server, server,
+};
 pub use error::{Error, Result};
 pub use params::GEO_RELAY_COUNT;
 pub use select::{closest, select_both};

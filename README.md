@@ -112,6 +112,13 @@ delivery R9, then read-back R11), the probe prevailing; `Prober` runs probes, 16
 A filter only this peer applies is accepted only by A0 (`SharedStrategy::qualified`), a shared
 one (A2) by any strategy.
 
+### One server, one place
+
+A server can be named under many paths (per-user `/inbox`, generated paths). `server` gives
+the server of an address (scheme, host, port), `one_per_server` keeps one address for it (the
+smallest, so the same whatever the order of the list). A0, A1, A2, A3 and A5 count a server once;
+`AS` stays what the apps do.
+
 ### Census of relays (`census`)
 
 `relay_url` checks and normalises a relay address from free text (public names and addresses

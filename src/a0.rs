@@ -75,7 +75,7 @@ impl SharedStrategy {
     /// On `csv`, read with the iOS rule, w = 8, r = 5, no shared relay.
     pub fn new(csv: &str) -> Self {
         SharedStrategy {
-            list: RelayDirectory::parse(csv, Platform::Ios),
+            list: RelayDirectory::parse(csv, Platform::Ios).one_per_server(),
             version: None,
             write: A0_WRITE,
             read: A0_READ,
@@ -87,7 +87,7 @@ impl SharedStrategy {
     /// The same list, already read with the iOS rule.
     pub fn from_directory(list: RelayDirectory) -> Self {
         let mut s = SharedStrategy::new("");
-        s.list = list;
+        s.list = list.one_per_server();
         s
     }
 

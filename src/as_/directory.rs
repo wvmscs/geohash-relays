@@ -5,7 +5,7 @@
 //! normalisation. Ported from bitchat-geohash (`src/directory.rs`, lots 1 and
 //! 11 bis); downloading is left to the caller.
 
-use std::collections::HashMap;
+use std::collections::{BTreeMap, BTreeSet, HashMap};
 
 /// Which app reads a relay list: iOS reads bitchat's reviewed
 /// `relays/online_relays_gps.csv`, Android georelays' daily `nostr_relays.csv`.
@@ -137,6 +137,22 @@ impl RelayDirectory {
         self.relays.len()
     }
 
+    /// The same list, in the same order, with one address per server
+    /// ([`one_per_server`]): the base of the alternatives (A0, A1, A2). AS
+    /// does not use it: it mirrors the apps, which do not all do this.
+    pub fn one_per_server(mut self) -> Self {
+        let norm = |r: &DirectoryRelay| normalize_url(&r.url).unwrap_or_else(|| r.url.clone());
+        let kept: BTreeSet<String> = one_per_server(self.relays.iter().map(norm))
+            .into_iter()
+            .collect();
+        let mut seen = BTreeSet::new();
+        self.relays.retain(|r| {
+            let url = norm(r);
+            kept.contains(&url) && seen.insert(url)
+        });
+        self
+    }
+
     /// The same list without the relays `keep` refuses (A6, A2).
     pub fn retain(mut self, keep: impl Fn(&DirectoryRelay) -> bool) -> Self {
         self.relays.retain(|r| keep(r));
@@ -168,6 +184,38 @@ pub fn normalize_url(raw: &str) -> Option<String> {
     } else {
         Some(format!("wss://{host}"))
     }
+}
+
+/// The server an address designates: scheme, host and port, without the
+/// path. One server can be named under many paths (per-user `/inbox`,
+/// generated paths), which says nothing more: a strategy counts it once
+/// ([`one_per_server`], [`RelayDirectory::one_per_server`]). The address must
+/// be normalised ([`normalize_url`]).
+pub fn server(url: &str) -> &str {
+    let after = url.find("://").map_or(0, |i| i + 3);
+    match url[after..].find('/') {
+        Some(slash) => &url[..after + slash],
+        None => url,
+    }
+}
+
+/// One address per server, sorted: the smallest URL of each, so the one
+/// without a path when there is one, and the same whatever the order of the
+/// addresses (two peers with different lists keep the same address).
+pub fn one_per_server(urls: impl IntoIterator<Item = String>) -> Vec<String> {
+    let mut by_server: BTreeMap<String, String> = BTreeMap::new();
+    for url in urls {
+        match by_server.get_mut(server(&url)) {
+            Some(kept) if *kept <= url => {}
+            Some(kept) => *kept = url,
+            None => {
+                by_server.insert(server(&url).to_owned(), url);
+            }
+        }
+    }
+    let mut out: Vec<String> = by_server.into_values().collect();
+    out.sort();
+    out
 }
 
 fn parse_line(line: &str, platform: Platform) -> Option<DirectoryRelay> {

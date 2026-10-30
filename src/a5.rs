@@ -19,7 +19,7 @@
 use std::collections::{BTreeMap, BTreeSet};
 
 use crate::a1::score;
-use crate::directory::normalize_url;
+use crate::directory::{normalize_url, one_per_server};
 use crate::error::Result;
 use crate::params::{A1_PREFIX, A5_KINDS, A5_READ, A5_WINDOW_SECS, A5_WRITE};
 use crate::sansio::{Action, FilterSpec, Input, Machine};
@@ -71,10 +71,9 @@ pub struct Federation {
 
 impl Federation {
     pub fn new(members: &[String]) -> Self {
-        let mut m: Vec<String> = members.iter().filter_map(|u| normalize_url(u)).collect();
-        m.sort();
-        m.dedup();
-        Federation { members: m }
+        Federation {
+            members: one_per_server(members.iter().filter_map(|u| normalize_url(u))),
+        }
     }
 
     fn ranked(&self, cell: &str) -> Vec<String> {

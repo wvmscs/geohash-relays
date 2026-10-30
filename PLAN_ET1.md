@@ -92,6 +92,7 @@ retenues, attente de `OK`, `AUTH`, `CLOSED`) font l'objet de PR au lot 12.
 | 11 | Portages Swift et Kotlin des stratégies retenues | ⬜ |
 | 12 | PR vers bitchat et bitchat-android : intégration, attente de `OK`, `AUTH`, `CLOSED` | ⬜ |
 | 13 | Recensement des relais (NIP-65), base SQLite, liste compatible BitChat : `relay-census` | ✅ |
+| 14 | Diffusion de la liste : quelques entités de confiance, comparables ; pas de recalcul par chaque téléphone | ⬜ (plus tard) |
 
 Ordre : 0 → 1, puis chaque stratégie après 1 (mesurée dès sa livraison). Ordre proposé,
 celui du §6 : 2 (sans changer les apps), puis 3 et 4 (proposition aux apps), puis 5, 6, 7
@@ -119,6 +120,7 @@ Toutes validées le 29/10/2026, sauf mention contraire.
 | G9 ✅ | A3 | Tag `["relay", url]` (pas `r`, pris par le pont maillé), au plus 5 par présence ; k = 2 clés distinctes, preuve de travail ≥ 8 bits ; amorce A1 ou `as_`. |
 | G10 ✅ | A4 | Mode optionnel, désactivé par défaut ; publication réelle seulement sur action de l'utilisateur (invariant de la console). |
 | G15 | Recensement (lot 13) | Demande de l'utilisateur (30/10/2026) ; choix de l'utilisateur : binaire de `geohash-relays-net` (feature `census`), Tor par défaut et `--direct` en option, géolocalisation hors ligne DB-IP Lite (`maxminddb`), contrôle passif et test d'écriture (`--probe`, A6). Détails par l'agent, *à valider* : automate `census::Crawler` dans `geohash-relays` (G13), liste la plus récente de chaque auteur, 500 listes par relais, 90 s par relais, 16 à la fois, 8 tours au plus ; adresses publiques seulement ; noms résolus par la sortie Tor ; liste BitChat = `wss://` port 443 sans chemin, a répondu, localisé, aucun refus A6 ; lancement A6 partagé avec la console (`qualify::run`). |
+| G16 | Diffusion de la liste (lot 14) | Orientation de l'utilisateur (30/10/2026) : pas de recalcul courant par chaque smartphone (risque de saturer les relais) ; recalcul local pour les cas extrêmes seulement ; liste publiée de temps en temps par quelques entités de confiance, comparables entre elles pour détecter des intrusions (preuve de travail, réputation…). À préciser plus tard. |
 | G11 ✅ | A5 | Filtre de synchronisation documenté (`strfry sync`), détection des omissions ; essai entre le relais de test de l’utilisateur (`BITCHAT_TEST_RELAY`) et un second strfry local. |
 
 ## Lots
@@ -387,6 +389,15 @@ des stratégies retenues. Les portages du lot 11 et le CSV de `relay-census --co
       avec la source de chaque règle, les vecteurs de test communs et les résultats du banc.
 - [ ] Ouverture des PR seulement sur accord de l'utilisateur (publication extérieure).
 
+### Lot 14 : diffusion de la liste des relais ⬜ (à voir plus tard, avec l'utilisateur)
+
+Réserve de l'utilisateur (30/10/2026) : il n'est probablement pas sain d'encourager le recalcul
+de la liste des relais par chaque smartphone, la volumétrie risquerait de saturer les relais.
+Ce recalcul local reste prévu pour les cas extrêmes (comme aujourd'hui la non-mise à jour de la
+liste iOS). Le plus sage : une liste mise à disposition par quelques entités « de confiance »,
+qui font ce calcul de temps en temps (`relay-census`), et dont la comparaison permet de détecter
+d'éventuelles intrusions (preuve de travail, réputation…). Décision G16, à préciser.
+
 ### Lot 13 : recensement des relais ✅
 
 Demande de l'utilisateur (30/10/2026) : une base SQLite des relais, `--set` (relais donnés,
@@ -445,12 +456,15 @@ la liste s'enrichit), `--compat bitchat` (CSV des relais compatibles). Décision
       des 5 places d'une cellule à un même serveur (comme Android avec `host` et `host:443`, en
       pire) : risque de capture. Question posée à l'utilisateur : compter un serveur par hôte
       (et port), une seule adresse par serveur ?
-      **Fait en l'absence de l'utilisateur (option recommandée, à valider)** : `census::server`
-      (schéma, hôte, port, sans chemin) ; le recensement garde une adresse par serveur (celle
-      sans chemin, sinon la plus citée par les listes NIP-65) pour le CSV, le diff `--legacy`
-      et le compte de `--eligibility` (colonne « Servers »). `normalize_url`, les stratégies et
-      le banc **inchangés** : leur façon de compter un serveur reste à décider. Résultat : CSV
-      de 666 serveurs, sans doublon ; `--legacy` iOS 164 en commun (153 avant), Android 206.
+      **Validé par l'utilisateur** (« quel serait l'intérêt d'avoir une même information de
+      multiples fois ? ») : `server` (schéma, hôte, port, sans chemin), `one_per_server`. Le
+      recensement garde une adresse par serveur (celle sans chemin, sinon la plus citée par
+      les listes NIP-65) pour le CSV, le diff `--legacy` et `--eligibility` (colonne
+      « Servers ») : CSV de 666 serveurs, `--legacy` iOS 164 en commun (153 avant), Android 206.
+      Les alternatives A0, A1, A2, A3 et A5 comptent aussi un serveur une fois (la plus petite
+      adresse, indépendante de l'ordre de la liste) ; `AS` reste ce que font les apps (mode de
+      compatibilité), A4 le suit ; `normalize_url` inchangée ; banc inchangé (listes figées
+      sans chemin).
 - [ ] `--probe` seulement sur accord de l'utilisateur.
 
 ## Journal
@@ -497,3 +511,6 @@ la liste s'enrichit), `--compat bitchat` (CSV des relais compatibles). Décision
   commune ; constat : chemins multiples d'un même serveur (666 serveurs pour 886 adresses).
 - 30/10/2026 (nuit, utilisateur absent) : une adresse par serveur dans le recensement
   (`census::server`, à valider) ; règle commune et stratégies inchangées.
+- 30/10/2026 : décisions de l'utilisateur : un serveur = hôte et port, une adresse par serveur,
+  aussi dans les alternatives A0 à A3 et A5 ; orientation G16 (liste diffusée par quelques
+  entités de confiance, lot 14, plus tard).
