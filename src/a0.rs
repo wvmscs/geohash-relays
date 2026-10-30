@@ -28,6 +28,9 @@ use crate::params::{A0_READ, A0_SHARED_CANDIDATES, A0_SHARED_MAX, A0_WRITE};
 use crate::select::closest;
 use crate::strategy::{GeoRelay, Origin, RelayHealth, Role, Selected, Strategy};
 
+/// What this strategy asks of a candidate relay: A0 keeps the apps' rule: distance.
+pub const NEEDS: crate::strategy::Needs = crate::strategy::Needs { place: true };
+
 /// Version and digest of the shared list. The digest is SHA-256 of the
 /// normalised lines (trimmed, LF, header and blank lines left out), so that
 /// the same list gives the same digest whatever its line endings. The

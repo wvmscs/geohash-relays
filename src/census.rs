@@ -13,7 +13,10 @@
 //!   the lists on each relay, [`crate::params::CENSUS_CONCURRENCY`] at a
 //!   time, until `EOSE`, a failure or the time limit.
 //!
-//! What a relay is worth for the apps (NIP-11, probes) is [`crate::a6`]'s.
+//! What a relay is worth for the apps (NIP-11, probes) is [`crate::a6`]'s;
+//! [`exclusion`] says whether a strategy can use it ([`Needs`] of each
+//! strategy, [`STRATEGIES`]): the census counts the relays each one leaves
+//! out (a comparison criterion).
 
 use std::collections::{BTreeMap, BTreeSet, VecDeque};
 use std::net::IpAddr;
@@ -24,7 +27,7 @@ use crate::params::{
     CENSUS_TIMEOUT_SECS, KIND_RELAY_LIST,
 };
 use crate::sansio::{Action, EventMeta, FilterSpec, Input, Machine};
-use crate::strategy::Health;
+use crate::strategy::{Health, Needs};
 
 /// A relay address from free text (a NIP-65 tag, a command line): a
 /// `wss://` or `ws://` URL whose host is a public name or address, without
@@ -301,6 +304,86 @@ impl Machine for Crawler {
     }
 }
 
+/// The strategies that choose relays, and what each asks of a candidate.
+/// (A6 is a filter, not a choice.)
+pub const STRATEGIES: &[(&str, Needs)] = &[
+    ("AS", crate::as_::NEEDS),
+    ("A0", crate::a0::NEEDS),
+    ("A1", crate::a1::NEEDS),
+    ("A2", crate::a2::NEEDS),
+    ("A3", crate::a3::NEEDS),
+    ("A4", crate::a4::NEEDS),
+    ("A5", crate::a5::NEEDS),
+];
+
+/// What the census knows of a relay, as far as a strategy cares.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub struct Candidate<'a> {
+    /// Normalised URL.
+    pub url: &'a str,
+    /// Its last reading: answered or not; never read.
+    pub answered: Option<bool>,
+    /// Checked against the requirements (A6).
+    pub qualified: bool,
+    /// At least one requirement refused (A6).
+    pub refused: bool,
+    /// Has a place (latitude, longitude).
+    pub placed: bool,
+}
+
+/// Why a strategy cannot use a relay, the first reason found in this order.
+#[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Hash)]
+pub enum Exclusion {
+    /// Never read: nothing known of it yet.
+    NeverRead,
+    /// Did not answer its last reading (dead, silent, refused through Tor).
+    NoAnswer,
+    /// Answered, not checked against the requirements yet.
+    NotQualified,
+    /// Refuses a requirement (A6: R1, R2, R5 to R9).
+    Refused,
+    /// `ws://`: no TLS (R1); only test relays.
+    Clear,
+    /// No place, for a strategy that ranks by distance (`.onion`, address not
+    /// located).
+    NoPlace,
+}
+
+impl Exclusion {
+    pub fn describe(self) -> &'static str {
+        match self {
+            Exclusion::NeverRead => "never read",
+            Exclusion::NoAnswer => "did not answer",
+            Exclusion::NotQualified => "not qualified yet",
+            Exclusion::Refused => "refused (A6)",
+            Exclusion::Clear => "ws:// (no TLS)",
+            Exclusion::NoPlace => "no place",
+        }
+    }
+}
+
+/// Why a strategy with these `needs` cannot use `c`; `None`: it can.
+pub fn exclusion(c: &Candidate, needs: Needs) -> Option<Exclusion> {
+    match c.answered {
+        None => return Some(Exclusion::NeverRead),
+        Some(false) => return Some(Exclusion::NoAnswer),
+        Some(true) => {}
+    }
+    if !c.qualified {
+        return Some(Exclusion::NotQualified);
+    }
+    if c.refused {
+        return Some(Exclusion::Refused);
+    }
+    if c.url.starts_with("ws://") {
+        return Some(Exclusion::Clear);
+    }
+    if needs.place && !c.placed {
+        return Some(Exclusion::NoPlace);
+    }
+    None
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -480,6 +563,83 @@ mod tests {
                 .filter(|o| **o == Outcome::Silent)
                 .count(),
             relays.len() - 2
+        );
+    }
+
+    #[test]
+    fn what_each_strategy_leaves_out() {
+        let ok = Candidate {
+            url: "wss://relay.example.org:7777/nostr",
+            answered: Some(true),
+            qualified: true,
+            refused: false,
+            placed: true,
+        };
+        // Port and path are fine for every strategy.
+        for (_, needs) in STRATEGIES {
+            assert_eq!(exclusion(&ok, *needs), None);
+        }
+        let onion = Candidate {
+            url: "wss://abcdefghijklmnop.onion",
+            placed: false,
+            ..ok
+        };
+        let by_distance: Vec<&str> = STRATEGIES
+            .iter()
+            .filter(|(_, n)| exclusion(&onion, *n) == Some(Exclusion::NoPlace))
+            .map(|(name, _)| *name)
+            .collect();
+        assert_eq!(by_distance, ["AS", "A0", "A4"]);
+        let needs = crate::as_::NEEDS;
+        assert_eq!(
+            exclusion(
+                &Candidate {
+                    answered: None,
+                    ..ok
+                },
+                needs
+            ),
+            Some(Exclusion::NeverRead)
+        );
+        assert_eq!(
+            exclusion(
+                &Candidate {
+                    answered: Some(false),
+                    ..ok
+                },
+                needs
+            ),
+            Some(Exclusion::NoAnswer)
+        );
+        assert_eq!(
+            exclusion(
+                &Candidate {
+                    qualified: false,
+                    ..ok
+                },
+                needs
+            ),
+            Some(Exclusion::NotQualified)
+        );
+        assert_eq!(
+            exclusion(
+                &Candidate {
+                    refused: true,
+                    ..ok
+                },
+                needs
+            ),
+            Some(Exclusion::Refused)
+        );
+        assert_eq!(
+            exclusion(
+                &Candidate {
+                    url: "ws://relay.example.org",
+                    ..ok
+                },
+                needs
+            ),
+            Some(Exclusion::Clear)
         );
     }
 

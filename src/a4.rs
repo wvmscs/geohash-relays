@@ -25,6 +25,9 @@ use crate::params::{
 use crate::sansio::{Action, EventMeta, FilterSpec, Input, Machine};
 use crate::strategy::Strategy;
 
+/// What this strategy asks of a candidate relay: A4 republishes between the relay sets AS chooses, by distance.
+pub const NEEDS: crate::strategy::Needs = crate::strategy::Needs { place: true };
+
 /// The relays of the cells a republisher connects: for each cell, the union
 /// of the sets to connect (normalised URLs).
 #[derive(Debug, Clone, Default, PartialEq)]

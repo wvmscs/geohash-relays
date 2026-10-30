@@ -33,6 +33,9 @@ use crate::params::{
 };
 use crate::sansio::{Action, EventMeta, FilterSpec, Input, Machine};
 
+/// What this strategy asks of a candidate relay: A2's places come from the monitors' reports (`g` tags), not from the relay's address.
+pub const NEEDS: crate::strategy::Needs = crate::strategy::Needs { place: false };
+
 /// A monitor's report on a relay (kind 30166).
 #[derive(Debug, Clone, PartialEq)]
 pub struct Report {

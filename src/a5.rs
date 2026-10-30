@@ -25,6 +25,9 @@ use crate::params::{A1_PREFIX, A5_KINDS, A5_READ, A5_WINDOW_SECS, A5_WRITE};
 use crate::sansio::{Action, FilterSpec, Input, Machine};
 use crate::strategy::{GeoRelay, Origin, Role, Selected, Strategy};
 
+/// What this strategy asks of a candidate relay: A5's relays are the federation's members.
+pub const NEEDS: crate::strategy::Needs = crate::strategy::Needs { place: false };
+
 /// The NIP-01 filter of what a federation synchronises for these cells
 /// (JSON, for `strfry sync --filter` or `strfry router`). Without cells, the
 /// kinds only: kind 1 notes without `g` come too.

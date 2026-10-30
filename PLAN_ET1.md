@@ -371,6 +371,12 @@ durée de vie des éphémères ≥ 1 h, R11) ; console `--strategy A5 --federati
 
 ### Lot 12 : PR vers bitchat et bitchat-android ⬜
 
+Annonce de l'utilisateur (30/10/2026) : en attendant l'intégration par les mainteneurs
+actuels, des versions iOS et Android des apps seront proposées sur son site, avec un **mode de
+compatibilité** (dialoguer avec les apps actuelles : leurs listes et leur règle, AS) à côté
+des stratégies retenues. Les portages du lot 11 et le CSV de `relay-census --compat bitchat`
+(règle commune) les visent ; les PR rendront ensuite les deux apps identiques.
+
 - [ ] Modifications des codes Swift (`permissionlesstech/bitchat`) et Kotlin
       (`permissionlesstech/bitchat-android`) pour l'intégration : stratégies retenues
       (portages du lot 11), et une implémentation compatible de l'attente de `OK`, de `AUTH`
@@ -414,7 +420,7 @@ la liste s'enrichit), `--compat bitchat` (CSV des relais compatibles). Décision
       utilisables absents des listes ; 72 relais de la liste iOS (35 Android) ne répondent pas
       par Tor ; 13 relais iOS localisés à plus de 100 km de leur place actuelle (liste revue
       rarement), Android à 0 km (même géolocalisation).
-- [ ] **Remarque de l'utilisateur (30/10/2026)** : port ≠ 443, chemin, `.onion`, absence de
+- [x] **Remarque de l'utilisateur (30/10/2026)**, réalisée sur son accord : port ≠ 443, chemin, `.onion`, absence de
       localisation ne sont éliminatoires que pour les apps actuelles, pas pour toutes les
       stratégies ; l'étude peut fournir un critère de comparaison de plus (relais écartés).
       Proposé, en attente d'accord : « utilisable » = aucun refus A6 seulement ; exigences de
@@ -428,6 +434,17 @@ la liste s'enrichit), `--compat bitchat` (CSV des relais compatibles). Décision
       apps actuelles (iOS perdrait le chemin). Relevé au passage :
       les deux apps acceptent un port ≠ 443 (iOS le garde, Android garde le texte) ; R1 du
       document l'exige, mais c'est une proposition.
+      Fait : `strategy::Needs` et `NEEDS` à côté de chaque stratégie (localisation : AS, A0,
+      A4 ; non : A1, A2, A3, A5), `census::exclusion` ; `relay-census --eligibility` ;
+      `--compat bitchat` à la règle commune (un CSV) ; section « Relays a strategy leaves out »
+      de `docs/evaluation.md`. Recensement du 30/10 : AS, A0, A4 : 886 relais utilisables
+      (54 sans localisation) ; A1, A2, A3, A5 : 940.
+- [ ] **Constat à trancher** : à la règle commune, les 886 adresses ne sont que 666 serveurs ;
+      152 serveurs sous plusieurs chemins (220 adresses de plus, jusqu'à 11 pour un serveur :
+      `/inbox` par utilisateur, chemins générés). Une stratégie par distance donnerait plusieurs
+      des 5 places d'une cellule à un même serveur (comme Android avec `host` et `host:443`, en
+      pire) : risque de capture. Question posée à l'utilisateur : compter un serveur par hôte
+      (et port), une seule adresse par serveur ?
 - [ ] `--probe` seulement sur accord de l'utilisateur.
 
 ## Journal
@@ -470,3 +487,5 @@ la liste s'enrichit), `--compat bitchat` (CSV des relais compatibles). Décision
 - 30/10/2026 : lot 13, `relay-census --legacy` (diff avec les listes des apps).
 - 30/10/2026 : lot 13, recensement complet (3 371 relais) ; remarque de l'utilisateur sur les
   critères propres aux apps actuelles, proposition « éligibilité par stratégie » en attente.
+- 30/10/2026 : lot 13, éligibilité par stratégie (`Needs`, `--eligibility`), CSV à la règle
+  commune ; constat : chemins multiples d'un même serveur (666 serveurs pour 886 adresses).

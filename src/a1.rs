@@ -38,6 +38,9 @@ use crate::error::Result;
 use crate::params::{A1_EPOCH_SECS, A1_K, A1_OVERLAP_SECS, A1_PREFIX};
 use crate::strategy::{GeoRelay, Origin, Role, Selected, Strategy};
 
+/// What this strategy asks of a candidate relay: A1 scores the URL only (the place is shown, not used).
+pub const NEEDS: crate::strategy::Needs = crate::strategy::Needs { place: false };
+
 /// The score of `url` for `cell`: the first 8 bytes of the hash, big-endian.
 pub fn score(salt: &[u8], cell: &str, prefix: usize, url: &str) -> u64 {
     let p = &cell[..cell.len().min(prefix)];

@@ -30,6 +30,9 @@ use crate::params::{
 use crate::sansio::EventMeta;
 use crate::strategy::{GeoRelay, Origin, Role, Selected, Strategy};
 
+/// What this strategy asks of a candidate relay: A3 takes the relays the cell's peers announce.
+pub const NEEDS: crate::strategy::Needs = crate::strategy::Needs { place: false };
+
 /// The tags a presence adds to announce `relays` (normalised, distinct, at
 /// most [`A3_MAX_TAGS`]).
 pub fn announce_tags(relays: &[String]) -> Vec<Vec<String>> {

@@ -9,6 +9,10 @@
   geohash-relays-net's `relay-census`.
 - `params`: `KIND_RELAY_LIST`, `CENSUS_*`, `comm::RESOLVE_TIMEOUT`, `LIST_MAX_AGE_SECS` (the
   apps download their list every 24 h).
+- `strategy::Needs` and a `NEEDS` constant beside each strategy (whether it needs a place);
+  `census::{STRATEGIES, Candidate, Exclusion, exclusion}`: why a strategy cannot use a relay
+  (never read, no answer, not qualified, refused by A6, `ws://`, no place). Ports and paths
+  are never a reason (the common rule keeps them).
 - `select::haversine_km` is public (the census measures how far its places are from the
   lists').
 

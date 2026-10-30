@@ -96,6 +96,20 @@ impl Selected {
 }
 
 /// The relays of a channel.
+/// What a strategy asks of a candidate relay, beyond the requirements every
+/// relay must meet (A6): declared beside each strategy (`NEEDS`), counted by
+/// the census (relays a strategy leaves out, lot 13).
+///
+/// Ports other than 443 and paths are never excluded: the common rule
+/// ([`crate::normalize_url`]), which the Swift and Kotlin ports follow,
+/// keeps them.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub struct Needs {
+    /// A place (latitude, longitude): the strategy ranks relays by distance.
+    /// An `.onion` relay, or one not located, has none.
+    pub place: bool,
+}
+
 pub trait Strategy: Send + Sync {
     /// Short name: `"AS"`, `"A0"`…
     fn name(&self) -> &str;

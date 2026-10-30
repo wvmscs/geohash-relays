@@ -15,6 +15,9 @@ use crate::strategy::{Selected, Strategy};
 use directory::RelayDirectory;
 use select::select_both;
 
+/// What this strategy asks of a candidate relay: AS ranks relays by distance to the cell.
+pub const NEEDS: crate::strategy::Needs = crate::strategy::Needs { place: true };
+
 /// Which apps' choice the `AS` strategy follows.
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum Apps {
