@@ -33,6 +33,7 @@ snapshot: when what it knows changes, the host builds a new one.
 | `a4` | republication between the iOS and Android relay sets |
 | `a5` | synchronised federation (NIP-77), omissions |
 | `a6` | relay qualification (NIP-11, probes) |
+| `census` | the relays users name in their relay lists (NIP-65), read round after round |
 
 `params` holds every constant, with its source. Strategies that talk to relays are machines
 without I/O (`sansio`); [geohash-relays-net](https://github.com/wvmscs/geohash-relays-net)
@@ -110,6 +111,13 @@ what a member lacks; [docs/federation.md](docs/federation.md) gives the strfry c
 delivery R9, then read-back R11), the probe prevailing; `Prober` runs probes, 16 at a time.
 A filter only this peer applies is accepted only by A0 (`SharedStrategy::qualified`), a shared
 one (A2) by any strategy.
+
+### Census of relays (`census`)
+
+`relay_url` checks and normalises a relay address from free text (public names and addresses
+only); `relays_of` reads a NIP-65 relay list (kind 10002); `Crawler` reads the relay lists of a
+set of relays, 16 at a time, keeping the newest list of each author. geohash-relays-net's
+`relay-census` runs it round after round, places the relays and qualifies them with A6.
 
 ## Tests
 

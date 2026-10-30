@@ -9,7 +9,8 @@
 //! `docs/geohash-relays-requirements-and-alternatives.md`):
 //!
 //! * [`as_`]: what the apps do today, iOS and Android rules (`AS`);
-//! * [`a0`] to [`a6`]: the alternatives.
+//! * [`a0`] to [`a6`]: the alternatives;
+//! * [`census`]: the relays users name in their relay lists (NIP-65).
 //!
 //! Also the geohash arithmetic the apps use ([`geohash`]), every constant
 //! ([`params`]), and the form of the strategies that talk to relays
@@ -28,6 +29,7 @@ pub mod a5;
 pub mod a6;
 pub mod as_;
 pub mod bench;
+pub mod census;
 mod error;
 pub mod geohash;
 pub mod params;

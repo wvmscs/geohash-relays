@@ -2,6 +2,13 @@
 
 ## [Unreleased]
 
+### Added (lot 13, branch `strategies`)
+- `census`: `relay_url` (a public relay address from free text, normalised), `relays_of` (the
+  relays of a NIP-65 relay list, kind 10002), and the `Crawler` machine (relay lists of a set
+  of relays, 16 at a time, the newest of each author, `EOSE`, failure or 90 s). Run by
+  geohash-relays-net's `relay-census`.
+- `params`: `KIND_RELAY_LIST`, `CENSUS_*`, `comm::RESOLVE_TIMEOUT`.
+
 ### Changed (lot 0 of `PLAN_ET1.md`, branch `strategies`)
 - Modules: `as_` (`AS`: `directory`, `select`, `AppStrategy`, also re-exported at the root
   under their old paths), `a0` to `a6` (the alternatives).

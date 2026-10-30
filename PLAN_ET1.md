@@ -91,6 +91,7 @@ retenues, attente de `OK`, `AUTH`, `CLOSED`) font l'objet de PR au lot 12.
 | 10 | Évaluation des stratégies et dossier de proposition aux apps | ✅ (à relire) |
 | 11 | Portages Swift et Kotlin des stratégies retenues | ⬜ |
 | 12 | PR vers bitchat et bitchat-android : intégration, attente de `OK`, `AUTH`, `CLOSED` | ⬜ |
+| 13 | Recensement des relais (NIP-65), base SQLite, liste compatible BitChat : `relay-census` | ✅ |
 
 Ordre : 0 → 1, puis chaque stratégie après 1 (mesurée dès sa livraison). Ordre proposé,
 celui du §6 : 2 (sans changer les apps), puis 3 et 4 (proposition aux apps), puis 5, 6, 7
@@ -117,6 +118,7 @@ Toutes validées le 29/10/2026, sauf mention contraire.
 | G8 ✅ | A1 | `SHA-256(sel ‖ préfixe(cellule, p) ‖ url normalisée)`, k = 5, p = 4 ; époque = jour UTC ; sel fourni par l'appelant ; écriture vers les deux époques pendant 1 h autour du changement. |
 | G9 ✅ | A3 | Tag `["relay", url]` (pas `r`, pris par le pont maillé), au plus 5 par présence ; k = 2 clés distinctes, preuve de travail ≥ 8 bits ; amorce A1 ou `as_`. |
 | G10 ✅ | A4 | Mode optionnel, désactivé par défaut ; publication réelle seulement sur action de l'utilisateur (invariant de la console). |
+| G15 | Recensement (lot 13) | Demande de l'utilisateur (30/10/2026) ; choix de l'utilisateur : binaire de `geohash-relays-net` (feature `census`), Tor par défaut et `--direct` en option, géolocalisation hors ligne DB-IP Lite (`maxminddb`), contrôle passif et test d'écriture (`--probe`, A6). Détails par l'agent, *à valider* : automate `census::Crawler` dans `geohash-relays` (G13), liste la plus récente de chaque auteur, 500 listes par relais, 90 s par relais, 16 à la fois, 8 tours au plus ; adresses publiques seulement ; noms résolus par la sortie Tor ; liste BitChat = `wss://` port 443 sans chemin, a répondu, localisé, aucun refus A6 ; lancement A6 partagé avec la console (`qualify::run`). |
 | G11 ✅ | A5 | Filtre de synchronisation documenté (`strfry sync`), détection des omissions ; essai entre le relais de test de l’utilisateur (`BITCHAT_TEST_RELAY`) et un second strfry local. |
 
 ## Lots
@@ -379,6 +381,27 @@ durée de vie des éphémères ≥ 1 h, R11) ; console `--strategy A5 --federati
       avec la source de chaque règle, les vecteurs de test communs et les résultats du banc.
 - [ ] Ouverture des PR seulement sur accord de l'utilisateur (publication extérieure).
 
+### Lot 13 : recensement des relais ✅
+
+Demande de l'utilisateur (30/10/2026) : une base SQLite des relais, `--set` (relais donnés,
+normalisés), `--refresh` (listes NIP-65 des relais connus, validées, relais nommés ajoutés sans
+doublon, caractéristiques dont la localisation geoIP/geohash et les défauts, en boucle tant que
+la liste s'enrichit), `--compat bitchat` (CSV des relais compatibles). Décision G15.
+
+- [x] `geohash-relays` : `census::{relay_url, relays_of, Crawler}`, constantes `CENSUS_*`,
+      `KIND_RELAY_LIST`, `comm::RESOLVE_TIMEOUT` ; 4 tests.
+- [x] `geohash-relays-net` (feature `census`) : `Connector::resolve` (RESOLVE de Tor, Arti,
+      système en direct), `census::{store, geo, refresh, bitchat_csv}`, binaire `relay-census` ;
+      `qualify::run` repris de la console ; 6 tests unitaires, 2 d'intégration (relais local,
+      proxy SOCKS local).
+- [x] Essai réel en lecture seule, par Tor, depuis relay.damus.io, nos.lol et
+      relay.primal.net : 495 listes, 35 relais nouveaux en un tour ; relay.primal.net qualifié
+      (avertissement R8 : 20 abonnements). Constats : 30 s par relais ne suffisaient pas par
+      Tor (porté à 90 s) ; nos.lol ne répond pas par Tor (R3) ; relay.damus.io ne renvoie
+      rien, même en direct.
+- [ ] Essai de la localisation sur un vrai fichier DB-IP Lite (à télécharger), et d'un
+      `--refresh` complet (plusieurs tours) ; `--probe` seulement sur accord de l'utilisateur.
+
 ## Journal
 
 - 29/10/2026 : plan créé, puis refondu : 8 modules (`as_`, `a0` … `a6`), 3 features
@@ -411,3 +434,6 @@ durée de vie des éphémères ≥ 1 h, R11) ; console `--strategy A5 --federati
   défauts corrigés (concurrence des circuits Tor, serveurs muets). Lot 10 : évaluation et
   proposition dans `docs/evaluation.md`, README par stratégie. Restent avec l'utilisateur :
   sondes en écriture, strfry réel, essai avec l'app, choix des stratégies à porter.
+- 30/10/2026 : lot 13, recensement des relais (G15) : automate `census` ici, binaire
+  `relay-census` dans `geohash-relays-net`, lancement A6 partagé avec la console. Essai réel
+  par Tor en lecture seule (un tour) ; localisation à essayer avec un fichier DB-IP.

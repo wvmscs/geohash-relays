@@ -38,6 +38,9 @@ pub const KIND_AUTH: u32 = 22242;
 pub const KIND_RELAY_DISCOVERY: u32 = 30166;
 /// Monitor announcement (NIP-66), A2.
 pub const KIND_MONITOR_ANNOUNCEMENT: u32 = 10166;
+/// Relay list metadata (NIP-65): the relays a user reads and writes; the
+/// census follows them (lot 13).
+pub const KIND_RELAY_LIST: u32 = 10002;
 
 // ---------------------------------------------------------------- AS
 
@@ -180,6 +183,28 @@ pub const A6_PROBE_TIMEOUT_SECS: i64 = 30;
 /// relay: hundreds at once fail).
 pub const A6_CONCURRENCY: usize = 16;
 
+// ---------------------------------------------------------------- census (lot 13, G15)
+
+/// Relay lists (kind 10002) asked of each relay, newest first.
+pub const CENSUS_LIST_LIMIT: u32 = 500;
+/// A relay that has not ended its stored events (`EOSE`) after this long is
+/// left: many never answer (lot 9). Through Tor the circuit alone can take
+/// up to a minute (`comm::CONNECT_TIMEOUT`), then up to
+/// [`CENSUS_LIST_LIMIT`] lists come: 30 s left nos.lol out (29/10/2026).
+pub const CENSUS_TIMEOUT_SECS: i64 = 90;
+/// Relays read at once (one Tor circuit each, as for A6).
+pub const CENSUS_CONCURRENCY: usize = 16;
+/// A relay list dated further than this in the future is not valid.
+pub const CENSUS_MAX_FUTURE_SECS: i64 = 900;
+/// Rounds of a refresh at most: each reads the relays the previous one
+/// found, until none is new.
+pub const CENSUS_MAX_ROUNDS: usize = 8;
+/// Precision of the geohash recorded for a relay (as the map's finest
+/// level).
+pub const CENSUS_GEOHASH_PRECISION: usize = 6;
+/// A relay URL longer than this is not one (NIP-65 tags are free text).
+pub const CENSUS_MAX_URL_BYTES: usize = 256;
+
 // ---------------------------------------------------------------- comparison bench
 
 /// Seed of the bench's deterministic draws (failures).
@@ -222,6 +247,9 @@ pub mod comm {
     pub const NIP11_TIMEOUT: Duration = Duration::from_secs(20);
     /// Largest NIP-11 document accepted, in bytes.
     pub const MAX_NIP11_BYTES: usize = 64 * 1024;
+    /// A host name must resolve within this time (census, lot 13; through
+    /// Tor, a circuit first).
+    pub const RESOLVE_TIMEOUT: Duration = Duration::from_secs(30);
     /// iOS receive limits (`NostrRelayManager.swift`): tags per event…
     pub const MAX_EVENT_TAGS: usize = 64;
     /// … values per tag…
