@@ -514,3 +514,4 @@ la liste s'enrichit), `--compat bitchat` (CSV des relais compatibles). Décision
 - 30/10/2026 : décisions de l'utilisateur : un serveur = hôte et port, une adresse par serveur,
   aussi dans les alternatives A0 à A3 et A5 ; orientation G16 (liste diffusée par quelques
   entités de confiance, lot 14, plus tard).
+- 30/10/2026 : `docs/geohash-relays-requirements-and-alternatives.md` : NIP-65 (kind 10002) étudié et non retenu comme approche (section 5), question 8 ajoutée (section 7), à la demande de l'utilisateur. Vérifié : les apps ne l'utilisent pas (iOS `04995f6`, Android `20501fd`).

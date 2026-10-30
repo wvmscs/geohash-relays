@@ -505,6 +505,49 @@ or A2.
 These mechanisms do not replace Nostr. But they show that the app can already move signed events
 through more than one path.
 
+### NIP-65 (kind 10002): studied, not retained as an approach
+
+Added on 2026-10-30. The summary table below does not include it.
+
+**Facts.**
+- NIP-65 lets a user announce the relays where the user reads and writes. Kind 10002 is a
+  replaceable event: relays keep it.
+- The apps do not use kind 10002, and they do not use kind 10050. The code and the documentation
+  of `permissionlesstech/bitchat` (commit `04995f6`) and `permissionlesstech/bitchat-android`
+  (commit `20501fd`) do not name them.
+- The list of the Android app depends on kind 10002 indirectly. The discovery step of georelays
+  crawls relay lists ([geohash-relays-updates.md](geohash-relays-updates.md)). A later step keeps
+  only the relays that accept reading and writing a kind 20000 event.
+
+**Measurements on 2026-10-30.**
+- `relay-census` of [geohash-relays-net](https://github.com/wvmscs/geohash-relays-net) holds
+  25,550 relay lists. They name 3,319 relay addresses.
+- The most named relays are `relay.momostr.pink`, `nos.lol`, `relay.damus.io` and
+  `relay.primal.net`.
+- `relay.damus.io` refused bitchat-console with an authentication error. A popular relay is not
+  always a usable relay for a channel.
+
+**Why it does not select the relays of a cell.**
+1. **It answers another question.** NIP-65 tells where to read a known author. A channel reader
+   looks for unknown authors in a cell.
+2. **It needs a shared relay first.** A reader must reach a relay to read a kind 10002 event. The
+   shared relay is the problem to solve.
+3. **It leaves a trace.** Each cell has its own key (section 1.3), and channel events are ephemeral.
+   A kind 10002 event from a cell key stays on relays. It records that this key was active in this
+   cell.
+4. **A3 gives the same information without these problems.** The presence event carries the relays.
+   This event is ephemeral, and older apps ignore the tag.
+5. **Popularity does not measure suitability.** Only a test shows that a relay accepts kinds 20000
+   and 20001. Popularity is also easy to fake (Annex A.4).
+
+**Proposals.**
+- Use kind 10002 to **discover** candidate relays for A6 and A2. georelays and `relay-census`
+  already do this.
+- Do not use it as a selection rule, and do not publish it from a cell key.
+- Kind 10050 could tell the private message relays of a contact with a long-term key. This use is
+  outside relay selection for a cell. It can work only between BitChat apps, because their format is
+  not compatible with NIP-17 (Annex A.1). This document does not study it further.
+
 ### Summary
 
 | | Decentralised | Tamper-proof | Saturation-resistant | Capture-resistant | No app change | Cost |
@@ -562,6 +605,10 @@ Each step stays useful after the next step.
    exist.
 7. **Relay tag name (A3).** Select a name that is different from `r`. The iOS mesh bridge already
    uses `r`.
+8. **Relays known only from NIP-65.** Run the A6 tests on the relays that the census finds and the
+   two lists do not contain. On 2026-10-30 this applies to at least 16 servers located in France,
+   for at least 24 servers known there. Find out if the discovery filter removed them, or if nobody
+   tested them.
 
 ---
 
