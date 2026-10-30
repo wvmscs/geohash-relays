@@ -408,8 +408,23 @@ la liste s'enrichit), `--compat bitchat` (CSV des relais compatibles). Décision
       Android, par serveur, avec les raisons ; listes reprises d'une copie de moins de 24 h,
       sinon téléchargées par Tor. Essai : iOS 326, Android 392 relais ; les relais des deux
       côtés ont la même place (0 km).
-- [ ] `--refresh` complet (plusieurs tours, 700 relais et plus) ; `--probe` seulement sur
-      accord de l'utilisateur.
+- [x] `--refresh` complet (30/10/2026, base d'essai gardée hors dépôt) : 6 tours depuis
+      711 relais, 51 min par Tor ; 3 371 relais connus, 25 550 listes, 1 138 ont répondu,
+      1 030 localisés, 974 sans refus A6. `--legacy` : 447 (iOS) et 402 (Android) relais
+      utilisables absents des listes ; 72 relais de la liste iOS (35 Android) ne répondent pas
+      par Tor ; 13 relais iOS localisés à plus de 100 km de leur place actuelle (liste revue
+      rarement), Android à 0 km (même géolocalisation).
+- [ ] **Remarque de l'utilisateur (30/10/2026)** : port ≠ 443, chemin, `.onion`, absence de
+      localisation ne sont éliminatoires que pour les apps actuelles, pas pour toutes les
+      stratégies ; l'étude peut fournir un critère de comparaison de plus (relais écartés).
+      Proposé, en attente d'accord : « utilisable » = aucun refus A6 seulement ; exigences de
+      chaque stratégie sur un candidat déclarées ici (localisation, chemin, `.onion`) ;
+      `relay-census --eligibility` (retenus et écartés par raison, par stratégie) ; critère
+      ajouté au banc et à `docs/evaluation.md` ; `--compat bitchat` au profil exact des apps
+      (port ≠ 443 admis, chemin exclu pour iOS seulement, un CSV par app). Relevé au passage :
+      les deux apps acceptent un port ≠ 443 (iOS le garde, Android garde le texte) ; R1 du
+      document l'exige, mais c'est une proposition.
+- [ ] `--probe` seulement sur accord de l'utilisateur.
 
 ## Journal
 
@@ -449,3 +464,5 @@ la liste s'enrichit), `--compat bitchat` (CSV des relais compatibles). Décision
 - 30/10/2026 : lot 13, localisation DB-IP essayée (un tour par Tor : 711 relais connus, CSV
   BitChat de 22 relais).
 - 30/10/2026 : lot 13, `relay-census --legacy` (diff avec les listes des apps).
+- 30/10/2026 : lot 13, recensement complet (3 371 relais) ; remarque de l'utilisateur sur les
+  critères propres aux apps actuelles, proposition « éligibilité par stratégie » en attente.
