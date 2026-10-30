@@ -30,7 +30,7 @@ There is one exception. The requirements use the keywords **MUST**, **MUST NOT**
 
 This document keeps three types of statement apart:
 - **Facts** come from the source code.
-- **Measurements** come from tests on 2026-10-27.
+- **Measurements** come from tests on 2026-10-27, unless the text gives another date.
 - **Proposals** are in sections 5 and 6.
 
 ## Contents
@@ -538,7 +538,8 @@ Added on 2026-10-30. The summary table below does not include it.
 4. **A3 gives the same information without these problems.** The presence event carries the relays.
    This event is ephemeral, and older apps ignore the tag.
 5. **Popularity does not measure suitability.** Only a test shows that a relay accepts kinds 20000
-   and 20001. Popularity is also easy to fake (Annex A.4).
+   and 20001. Popularity is also easy to fake (Annex A.4). The test of section 7, item 8 confirms
+   this: two relays that nearly 500 lists name refuse an unknown key.
 
 **Proposals.**
 - Use kind 10002 to **discover** candidate relays for A6 and A2. georelays and `relay-census`
@@ -606,9 +607,42 @@ Each step stays useful after the next step.
 7. **Relay tag name (A3).** Select a name that is different from `r`. The iOS mesh bridge already
    uses `r`.
 8. **Relays known only from NIP-65.** Run the A6 tests on the relays that the census finds and the
-   two lists do not contain. On 2026-10-30 this applies to at least 16 servers located in France,
-   for at least 24 servers known there. Find out if the discovery filter removed them, or if nobody
-   tested them.
+   two lists do not contain.
+   - **Done for France on 2026-10-30.** The results are below. The test covers 24 servers: the census
+     places them in France, and it locates only 1,030 of its 3,371 addresses. So 24 is a minimum.
+   - **Still to do:** the same test for the other countries.
+
+   **Method.** One test from one machine, without Tor, with `nak`. The events use a throwaway key
+   and the cell `7zzzzzzz`, in open sea. For each relay, the test opens a subscription. Then it writes
+   one event of kind 20000 and one of kind 20001 without authentication, and it reads them back
+   after about 5 s. If the relay asks for NIP-42, the test starts again with authentication. The
+   ambiguous relays had a second test.
+
+   | Servers | Accept both kinds, without authentication | Send them to the live subscriber |
+   |---|---|---|
+   | 8 in the lists of the apps | 7 | the same 7 |
+   | 16 not in the lists | 1 (`pipe.imwald.eu`) | the same 1 |
+
+   | Why a server refuses (15 servers not in the lists) | Servers |
+   |---|---|
+   | Access list, or key not admitted | 7 |
+   | Web of trust | 2 |
+   | Authentication, then access list | 2 |
+   | Refusal without a message (two `strfry` relays) | 2 |
+   | Payment | 1 |
+   | Not reachable | 1 |
+
+   **What this shows, for France, on this date.**
+   - The lists do not miss many relays. Most servers that are absent refuse a key they do not know,
+     and each cell has its own unknown key (section 1.3). Only `pipe.imwald.eu` meets R9 and is absent.
+   - A list can contain a relay that does not meet R9. `relay.mmwaves.de` is in the iOS list, and it
+     refuses keys outside its access list, also with authentication. The apps ignore this refusal
+     (section 1.5).
+   - R11 is not always met. Of the 8 servers that accept the events, 5 no longer return them after
+     about 5 s. These 5 still meet R9. This result is relevant to H3 (Annex A.5).
+
+   **Limits.** One measurement, from one machine, at one time. A refusal concerns a key with no
+   history. The result does not show how a relay behaves over time.
 
 ---
 

@@ -515,3 +515,4 @@ la liste s'enrichit), `--compat bitchat` (CSV des relais compatibles). Décision
   aussi dans les alternatives A0 à A3 et A5 ; orientation G16 (liste diffusée par quelques
   entités de confiance, lot 14, plus tard).
 - 30/10/2026 : `docs/geohash-relays-requirements-and-alternatives.md` : NIP-65 (kind 10002) étudié et non retenu comme approche (section 5), question 8 ajoutée (section 7), à la demande de l'utilisateur. Vérifié : les apps ne l'utilisent pas (iOS `04995f6`, Android `20501fd`).
+- 30/10/2026 : sondage réel des kinds 20000 et 20001 sur 24 serveurs placés en France, en direct, avec `nak`, à la demande de l'utilisateur (cellule en mer, clé jetable) : 7 des 8 présents dans les listes acceptent, 1 des 16 absents (`pipe.imwald.eu`). Résultats dans `docs/geohash-relays-requirements-and-alternatives.md`, section 7, question 8. `relay-census --probe` ne s'y prêtait pas : kind 20000 seul, et lié à `--refresh` (tous les relais).
