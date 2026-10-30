@@ -54,6 +54,10 @@ pub const IOS_LIST_URL: &str = "https://raw.githubusercontent.com/permissionless
 /// Android list: georelays' daily output, unreviewed (`RelayDirectory.kt`).
 pub const ANDROID_LIST_URL: &str =
     "https://raw.githubusercontent.com/permissionlesstech/georelays/main/nostr_relays.csv";
+/// Both apps download their list again after 24 h (iOS
+/// `TransportConfig.swift`; Android `RelayDirectory.kt`, data older than
+/// 24 h); a copy younger than this is current.
+pub const LIST_MAX_AGE_SECS: i64 = 86_400;
 
 /// iOS fixed relays (private messages): `builtInRelays` in
 /// `bitchat/Nostr/NostrRelayManager.swift` (plus relays the user adds).

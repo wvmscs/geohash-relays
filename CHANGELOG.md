@@ -7,7 +7,10 @@
   relays of a NIP-65 relay list, kind 10002), and the `Crawler` machine (relay lists of a set
   of relays, 16 at a time, the newest of each author, `EOSE`, failure or 90 s). Run by
   geohash-relays-net's `relay-census`.
-- `params`: `KIND_RELAY_LIST`, `CENSUS_*`, `comm::RESOLVE_TIMEOUT`.
+- `params`: `KIND_RELAY_LIST`, `CENSUS_*`, `comm::RESOLVE_TIMEOUT`, `LIST_MAX_AGE_SECS` (the
+  apps download their list every 24 h).
+- `select::haversine_km` is public (the census measures how far its places are from the
+  lists').
 
 ### Changed (lot 0 of `PLAN_ET1.md`, branch `strategies`)
 - Modules: `as_` (`AS`: `directory`, `select`, `AppStrategy`, also re-exported at the root

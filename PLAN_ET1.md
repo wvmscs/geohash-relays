@@ -404,6 +404,10 @@ la liste s'enrichit), `--compat bitchat` (CSV des relais compatibles). Décision
       673 relais nouveaux ; 25 localisés (relay.nostr.watch : nom non résolu par Tor),
       26 qualifiés (3 refusés : R6) ; CSV BitChat de 22 relais, coordonnées cohérentes avec la
       liste iOS (`*.nostr1.com` à New York).
+- [x] `--legacy` (demande du 30/10/2026) : diff du recensement avec les listes iOS et
+      Android, par serveur, avec les raisons ; listes reprises d'une copie de moins de 24 h,
+      sinon téléchargées par Tor. Essai : iOS 326, Android 392 relais ; les relais des deux
+      côtés ont la même place (0 km).
 - [ ] `--refresh` complet (plusieurs tours, 700 relais et plus) ; `--probe` seulement sur
       accord de l'utilisateur.
 
@@ -444,3 +448,4 @@ la liste s'enrichit), `--compat bitchat` (CSV des relais compatibles). Décision
   par Tor en lecture seule (un tour) ; localisation à essayer avec un fichier DB-IP.
 - 30/10/2026 : lot 13, localisation DB-IP essayée (un tour par Tor : 711 relais connus, CSV
   BitChat de 22 relais).
+- 30/10/2026 : lot 13, `relay-census --legacy` (diff avec les listes des apps).

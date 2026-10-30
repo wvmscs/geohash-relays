@@ -106,7 +106,9 @@ pub fn select_both(
     Ok(out)
 }
 
-pub(crate) fn haversine_km(lat1: f64, lon1: f64, lat2: f64, lon2: f64) -> f64 {
+/// Great-circle distance in km, as the apps compute it (iOS
+/// `GeoRelayDirectory.swift`).
+pub fn haversine_km(lat1: f64, lon1: f64, lat2: f64, lon2: f64) -> f64 {
     let (p1, p2) = (lat1.to_radians(), lat2.to_radians());
     let dp = p2 - p1;
     let dl = (lon2 - lon1).to_radians();
