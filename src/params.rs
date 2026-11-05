@@ -55,6 +55,23 @@ pub const GEO_RELAY_COUNT: usize = 5;
 /// v1.0.10).
 pub const AIRHOP_GEO_RELAY_COUNT: usize = 10;
 
+/// Sonar joins the 12 relays nearest a cell, "wider than bitchat's 5 so the
+/// two overlap on at least one relay even when the directories don't
+/// perfectly agree" (`ensure_geohash_relays`, `core/sonar-core/src/client.rs`,
+/// hedwig-corp/bitchat-to-sonar `fdf091c`).
+pub const SONAR_GEO_RELAY_COUNT: usize = 12;
+
+/// The relays Sonar's pool starts from when its sync snapshot is empty
+/// (`DEFAULT_RELAY_URLS`, `apps/sonar/composeApp/src/commonMain/kotlin/chat/bitchat/sonar/RelayDiagnostics.kt`,
+/// `fdf091c`). Its channel events go to every relay of the pool.
+pub const SONAR_DEFAULT_RELAYS: &[&str] = &[
+    "wss://relay.damus.io",
+    "wss://nos.lol",
+    "wss://relay.primal.net",
+    "wss://relay.kaleidoswap.com",
+    "wss://nostr.relay.hedwig.sh",
+];
+
 /// iOS list, as the app downloads it (`GeoRelayDirectory.swift`).
 pub const IOS_LIST_URL: &str = "https://raw.githubusercontent.com/permissionlesstech/bitchat/refs/heads/main/relays/online_relays_gps.csv";
 /// Android list: georelays' daily output, unreviewed (`RelayDirectory.kt`).

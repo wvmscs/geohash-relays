@@ -37,6 +37,7 @@ pub mod sansio;
 pub mod strategy;
 
 pub use as_::airhop::AirhopStrategy;
+pub use as_::sonar::SonarStrategy;
 pub use as_::{AppStrategy, Apps, directory, select};
 pub use directory::{
     DirectoryRelay, Platform, RelayDirectory, normalize_url, one_per_server, server,

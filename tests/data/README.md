@@ -17,3 +17,5 @@ Study of the clients (`docs/clients.md`, `cargo run --release --example clients`
 | `nostr_relays-2026-10-29.csv` | georelays `nostr_relays.csv` (Android), the census's copy | `e7c6e88edf` | 2026-10-29 |
 | `airhop-nostr_relays-v1.0.10.csv` | AirHop `assets/data/nostr_relays.csv`, vendored from georelays | release `v1.0.10` | 2026-11-02 |
 | `census-usable-2026-10-30.txt` | geohash-relays-net `relay-census`: the addresses that answered and that A6 does not refuse (`wss://`) | census of 2026-10-30 | 2026-10-30 |
+| `sonar-relays_gps-2026-06-15.csv` | Sonar `core/sonar-core/src/relays_gps.csv`, compiled into its core | `fdf091c` (file of 2026-06-15) | 2026-06-15 |
+| `sonar-online_relays_gps-2026-11-01.csv` | Sonar `relays/online_relays_gps.csv`, refreshed weekly, not read by the core | `fdf091c` | 2026-11-01 |

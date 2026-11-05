@@ -51,3 +51,9 @@ path = "tests/data/census-usable-2026-10-30.txt"
 precedence = "override"
 SPDX-FileCopyrightText = "2026 William VITAL, FR (wvmscs)"
 SPDX-License-Identifier = "Unlicense OR 0BSD"
+
+[[annotations]]
+path = ["tests/data/sonar-relays_gps-2026-06-15.csv", "tests/data/sonar-online_relays_gps-2026-11-01.csv"]
+precedence = "override"
+SPDX-FileCopyrightText = "hedwig-corp (https://github.com/hedwig-corp/bitchat-to-sonar, commit fdf091c), from permissionlesstech/georelays"
+SPDX-License-Identifier = "MIT"

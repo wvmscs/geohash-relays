@@ -10,6 +10,7 @@
 pub mod airhop;
 pub mod directory;
 pub mod select;
+pub mod sonar;
 
 use crate::error::Result;
 use crate::strategy::{Selected, Strategy};

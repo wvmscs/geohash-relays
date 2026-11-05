@@ -16,12 +16,13 @@ use std::collections::HashSet;
 use geohash_relays::bench::{self, Rng};
 use geohash_relays::params::BENCH_SEED;
 use geohash_relays::{
-    AirhopStrategy, AppStrategy, Platform, RelayDirectory, Strategy, normalize_url,
+    AirhopStrategy, AppStrategy, Platform, RelayDirectory, SonarStrategy, Strategy, normalize_url,
 };
 
 const IOS: &str = include_str!("../tests/data/online_relays_gps.csv");
 const ANDROID: &str = include_str!("../tests/data/nostr_relays-2026-10-29.csv");
 const AIRHOP: &str = include_str!("../tests/data/airhop-nostr_relays-v1.0.10.csv");
+const SONAR: &str = include_str!("../tests/data/sonar-relays_gps-2026-06-15.csv");
 const ALIVE: &str = include_str!("../tests/data/census-usable-2026-10-30.txt");
 
 fn pct(r: bench::Rendezvous) -> String {
@@ -55,10 +56,14 @@ fn main() {
     let ios = AppStrategy::ios(RelayDirectory::parse(IOS, Platform::Ios));
     let android = AppStrategy::android(RelayDirectory::parse(ANDROID, Platform::Android));
     let airhop = AirhopStrategy::new(AIRHOP);
-    let clients: [(&str, &dyn Strategy); 3] = [
+    let sonar = SonarStrategy::new(SONAR);
+    let sonar_pool = SonarStrategy::new(SONAR).with_pool();
+    let clients: [(&str, &dyn Strategy); 5] = [
         ("bitchat iOS", &ios),
         ("bitchat Android", &android),
         ("AirHop", &airhop),
+        ("Sonar (12 nearest)", &sonar),
+        ("Sonar (12 + default pool)", &sonar_pool),
     ];
 
     println!("## Lists\n");
@@ -71,6 +76,7 @@ fn main() {
             Platform::Android,
         ),
         ("AirHop v1.0.10", AIRHOP, Platform::Ios),
+        ("Sonar (core, 2026-06-15)", SONAR, Platform::Android),
     ] {
         let dir = RelayDirectory::parse(csv, p);
         let s = servers(&dir);
@@ -97,6 +103,10 @@ fn main() {
     );
     for i in 0..clients.len() {
         for j in i + 1..clients.len() {
+            // Sonar against itself, with and without its pool: no question.
+            if i >= 3 && j >= 3 {
+                continue;
+            }
             let (na, a) = clients[i];
             let (nb, b) = clients[j];
             println!(
