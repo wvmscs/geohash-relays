@@ -9,3 +9,11 @@
 
 Never downloaded by the tests. The older versions measure how stable a strategy is when a list
 changes (bench, lot 1).
+
+Study of the clients (`docs/clients.md`, `cargo run --release --example clients`):
+
+| File | Source | Commit | Date |
+|---|---|---|---|
+| `nostr_relays-2026-10-29.csv` | georelays `nostr_relays.csv` (Android), the census's copy | `e7c6e88edf` | 2026-10-29 |
+| `airhop-nostr_relays-v1.0.10.csv` | AirHop `assets/data/nostr_relays.csv`, vendored from georelays | release `v1.0.10` | 2026-11-02 |
+| `census-usable-2026-10-30.txt` | geohash-relays-net `relay-census`: the addresses that answered and that A6 does not refuse (`wss://`) | census of 2026-10-30 | 2026-10-30 |

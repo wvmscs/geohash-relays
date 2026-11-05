@@ -113,6 +113,34 @@ fn meet(a: &dyn Strategy, b: &dyn Strategy, cell: &str, dead: &HashSet<String>) 
     Ok(!wa.is_disjoint(&rb) && !wb.is_disjoint(&ra))
 }
 
+/// The same as [`rendezvous`], but only the relays in `alive` carry
+/// anything (normalised addresses, as a census finds them working): the
+/// peers still choose the dead ones, and lose what goes there.
+pub fn rendezvous_among(
+    a: &dyn Strategy,
+    b: &dyn Strategy,
+    cells: &[String],
+    alive: &HashSet<String>,
+) -> Result<Rendezvous> {
+    let mut r = Rendezvous {
+        cells: cells.len(),
+        met: 0,
+    };
+    for c in cells {
+        let mut dead: HashSet<String> = HashSet::new();
+        for s in a.write(c)?.iter().chain(b.write(c)?.iter()) {
+            let url = normalize_url(&s.relay.url).unwrap_or_else(|| s.relay.url.clone());
+            if !alive.contains(&url) {
+                dead.insert(url);
+            }
+        }
+        if meet(a, b, c, &dead)? {
+            r.met += 1;
+        }
+    }
+    Ok(r)
+}
+
 /// In how many `cells` a peer following `a` and a peer following `b` see
 /// each other's messages.
 pub fn rendezvous(a: &dyn Strategy, b: &dyn Strategy, cells: &[String]) -> Result<Rendezvous> {

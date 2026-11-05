@@ -7,6 +7,7 @@
 //! the 5 relays nearest to the channel centre ([`select::closest`]);
 //! [`Apps::Both`] is the union of the two choices ([`select::select_both`]).
 
+pub mod airhop;
 pub mod directory;
 pub mod select;
 

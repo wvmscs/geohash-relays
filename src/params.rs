@@ -49,6 +49,12 @@ pub const KIND_RELAY_LIST: u32 = 10002;
 /// `closestRelaysForGeohash`).
 pub const GEO_RELAY_COUNT: usize = 5;
 
+/// AirHop writes to and reads from the 10 nearest relays: the 5 bitchat
+/// picks, then 5 "warm backups" used even while the first 5 work
+/// (`GEO_RELAY_COUNT`, `src/core/nostr/geo-relay.ts`, areebahmeddd/airhop
+/// v1.0.10).
+pub const AIRHOP_GEO_RELAY_COUNT: usize = 10;
+
 /// iOS list, as the app downloads it (`GeoRelayDirectory.swift`).
 pub const IOS_LIST_URL: &str = "https://raw.githubusercontent.com/permissionlesstech/bitchat/refs/heads/main/relays/online_relays_gps.csv";
 /// Android list: georelays' daily output, unreviewed (`RelayDirectory.kt`).

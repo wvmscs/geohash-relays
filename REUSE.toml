@@ -32,3 +32,22 @@ path = "tests/data/nostr_relays-2026-10-22.csv"
 precedence = "override"
 SPDX-FileCopyrightText = "2025 permissionlesstech (https://github.com/permissionlesstech/georelays, nostr_relays.csv, commit 282e64abd9)"
 SPDX-License-Identifier = "MIT"
+
+# The lists of 2026-11-05's study of the clients (docs/clients.md).
+[[annotations]]
+path = "tests/data/nostr_relays-2026-10-29.csv"
+precedence = "override"
+SPDX-FileCopyrightText = "2025 permissionlesstech (https://github.com/permissionlesstech/georelays, nostr_relays.csv, commit e7c6e88edf)"
+SPDX-License-Identifier = "MIT"
+
+[[annotations]]
+path = "tests/data/airhop-nostr_relays-v1.0.10.csv"
+precedence = "override"
+SPDX-FileCopyrightText = "areebahmeddd (https://github.com/areebahmeddd/airhop, assets/data/nostr_relays.csv, v1.0.10), from permissionlesstech/georelays"
+SPDX-License-Identifier = "MIT"
+
+[[annotations]]
+path = "tests/data/census-usable-2026-10-30.txt"
+precedence = "override"
+SPDX-FileCopyrightText = "2026 William VITAL, FR (wvmscs)"
+SPDX-License-Identifier = "Unlicense OR 0BSD"

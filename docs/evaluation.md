@@ -5,6 +5,9 @@ real network (29/10/2026). The strategies are those of
 [geohash-relays-requirements-and-alternatives.md](geohash-relays-requirements-and-alternatives.md) (§5); `AS` is
 what the apps do today. Reproduce the bench with `cargo run --release --example compare`.
 
+The clients as they are on 2026-11-05 (bitchat iOS and Android, AirHop), and their rendezvous on
+the relays that actually answer: [clients.md](clients.md).
+
 ## Bench (frozen lists)
 
 Each strategy has two peers that must meet in a cell: for `AS`, an iOS peer (iOS list, iOS

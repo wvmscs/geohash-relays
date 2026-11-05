@@ -50,6 +50,10 @@ This document keeps three types of statement apart:
 
 ## 1. Reverse engineering: what the apps do with relays
 
+> Updated on 2026-11-05 in [clients.md](clients.md): nothing changed in the relay choice of
+> bitchat iOS (`v1.8.0`) and Android (`v2.2.0`, `main`); AirHop, a third client, picks the 10
+> nearest relays; B2 does not choose relays by geohash.
+
 ### 1.1 Two sets of relays
 
 Each app uses two different sets of relays.
