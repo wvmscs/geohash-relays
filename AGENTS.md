@@ -40,6 +40,9 @@ Rules that only concern the author's local checkout, if any, are in `AGENTS.loca
   and pull requests are rebased on it; it is **not merged into `main`** until the user
   decides so. `main` gets only fixes made from `main` itself (for example `v0.1.1`, the
   public opening, same code as `v0.1.0`), tagged once checked. Tagged versions never change.
+  A state of `strategies` that another crate depends on is pinned by a tag
+  `strategies-YYYY.MM.DD` (bitchat-geohash's strategy selector, user's decision of
+  2026-11-05): rewriting the branch then breaks no build.
 
 ## Commands
 

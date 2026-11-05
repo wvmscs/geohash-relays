@@ -50,3 +50,16 @@ fn its_first_five_are_what_bitchat_ios_picks_on_the_same_list() {
         assert_eq!(first, ios, "{cell}");
     }
 }
+
+#[test]
+fn a_list_read_by_android_gives_the_same_choice() {
+    let android = RelayDirectory::parse(ANDROID, Platform::Android);
+    let (a, b) = (
+        AirhopStrategy::new(ANDROID),
+        AirhopStrategy::from_directory(&android),
+    );
+    assert_eq!(a.list().len(), b.list().len());
+    for cell in ["u09tv", "dr5ru", "9q", "u0"] {
+        assert_eq!(a.read(cell).unwrap(), b.read(cell).unwrap(), "{cell}");
+    }
+}

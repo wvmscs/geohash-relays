@@ -41,6 +41,16 @@ impl AirhopStrategy {
         }
     }
 
+    /// From georelays' list as another client read it (Android keeps every
+    /// line): read again with AirHop's rule.
+    pub fn from_directory(list: &RelayDirectory) -> Self {
+        let mut csv = String::from("Relay URL,Latitude,Longitude\n");
+        for r in list.relays() {
+            csv.push_str(&format!("{},{},{}\n", r.url, r.lat, r.lon));
+        }
+        Self::new(&csv)
+    }
+
     pub fn list(&self) -> &RelayDirectory {
         &self.list
     }
