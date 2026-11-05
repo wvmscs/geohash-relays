@@ -54,7 +54,7 @@ then iOS and Android users do not see each other. Measured on real lists: see
 ## The strategies
 
 Results on the frozen lists and on the real network: [docs/evaluation.md](docs/evaluation.md).
-The clients of the channels today (bitchat iOS and Android, AirHop, B2) and whether their users
+The clients of the channels today (bitchat iOS and Android, AirHop) and whether their users
 meet: [docs/clients.md](docs/clients.md) (2026-11-05, `cargo run --release --example clients`).
 
 ### `AS`: today's apps (`as_`)

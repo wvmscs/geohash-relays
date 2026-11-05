@@ -14,8 +14,6 @@ releases, and adds the clients that appeared since. Reproduce the numbers with
   census of 2026-10-30: a cell gets **2.1 working relays** out of 5 on average.
 - **AirHop**, a third client wire-compatible with bitchat, chooses **10** relays (the 5 bitchat
   picks, then 5 backups), from georelays' raw list frozen in each release.
-- **B2 (BitChat II)** does not choose relays by geohash: it uses the relays its owner
-  configures.
 - Users of iOS and Android meet in **95 %** of the cells when every relay works, but in only
   **67 %** on the relays that actually answered. AirHop meets Android everywhere (same source,
   twice as many relays) and iOS in 87 to 92 % of the cells.
@@ -27,7 +25,6 @@ releases, and adds the clients that appeared since. Reproduce the numbers with
 | bitchat iOS | release `v1.8.0` (2026-10-23) = `main` `04995f68e4` | bitchat's reviewed `relays/online_relays_gps.csv`, fetched from `main` at runtime; last changed 2026-07-26 (`fb8fe39713`) | one entry per normalised host | 5 nearest the cell's centre, ties by host |
 | bitchat Android | release `v2.2.0` (2026-10-28); `main` `998f168487` (2026-11-01) | georelays' raw `nostr_relays.csv`, fetched at runtime once a day; a copy in the app for the first launch | every line as is (`host` and `host:443` are two) | 5 nearest, ties in list order (stable sort) |
 | AirHop | release `v1.0.10` (2026-11-02) = `main` | georelays' raw `nostr_relays.csv`, **frozen in the app** at build time, never fetched; a weekly job proposes the new one as a pull request | one entry per canonical address (rule ported from iOS) | **10** nearest, ties by URL |
-| B2 (BitChat II) | `main` `8386885` | none for geohash channels | — | the relays its owner configures (`b2 run --nostr wss://…`) |
 
 ### bitchat iOS
 
@@ -72,13 +69,6 @@ MIT), wire-compatible on Bluetooth and on the location channels
 
 Modelled here as `AirhopStrategy` (`src/as_/airhop.rs`).
 
-### B2 (BitChat II)
-
-B2 carries its own packets in ephemeral Nostr events (kind 20420) on the relays its owner gives
-it, usually a private relay; it does not choose relays by geohash and does not write to bitchat's
-location channels. Its protocol reads bitchat's announce field `bridge_geohash` (the cell of
-bitchat's mesh bridge) for compatibility. It refers to these documents for its future relay
-choice (`docs/nostr-relays/` of its repository); nothing is implemented yet.
 
 ## 2. The lists
 
@@ -151,8 +141,6 @@ The proposal of [evaluation.md](evaluation.md) stands, and is more urgent on two
 - AirHop: [areebahmeddd/airhop](https://github.com/areebahmeddd/airhop), release `v1.0.10`:
   `src/core/nostr/geo-relay.ts`, `src/core/nostr/geo-relay-source.ts`,
   `.github/workflows/sync-relays.yml`, `assets/data/nostr_relays.csv`.
-- B2: [wvmscs/BitChat-II](https://github.com/wvmscs/BitChat-II), `main` `8386885`:
-  `crates/b2-transport-nostr`, `crates/b2-proto/src/wire_payload.rs`, `docs/nostr-relays/`.
 - Lists: [permissionlesstech/georelays](https://github.com/permissionlesstech/georelays)
   `nostr_relays.csv` at `e7c6e88edf` (2026-10-29); census of geohash-relays-net (`relay-census`,
   2026-10-30).
