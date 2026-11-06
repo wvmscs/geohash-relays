@@ -1,3 +1,8 @@
+<!--
+SPDX-FileCopyrightText: 2026 William VITAL, FR (wvmscs)
+SPDX-License-Identifier: GPL-3.0-or-later
+-->
+
 # Radio–Nostr gateways: who chooses the cell, and what a gateway must hold
 
 > Written on 2026-11-06 from the source code of the apps and from a simulation on the frozen

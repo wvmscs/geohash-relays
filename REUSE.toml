@@ -7,6 +7,13 @@ precedence = "aggregate"
 SPDX-FileCopyrightText = "2026 William VITAL, FR (wvmscs)"
 SPDX-License-Identifier = "Unlicense OR 0BSD"
 
+# The gateway study is under the licence of B2, which keeps a copy of it.
+[[annotations]]
+path = "docs/gateways.md"
+precedence = "override"
+SPDX-FileCopyrightText = "2026 William VITAL, FR (wvmscs)"
+SPDX-License-Identifier = "GPL-3.0-or-later"
+
 # Frozen copies of the apps' relay lists, for offline tests.
 [[annotations]]
 path = "tests/data/online_relays_gps.csv"
