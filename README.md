@@ -39,8 +39,7 @@ snapshot: when what it knows changes, the host builds a new one.
 without I/O (`sansio`); [geohash-relays-net](https://github.com/wvmscs/geohash-relays-net)
 runs them with the communication of the iOS app, the Android app or bitchat-console.
 The alternatives come from
-[docs/geohash-relays-requirements-and-alternatives.md](docs/geohash-relays-requirements-and-alternatives.md); progress is in
-`PLAN_ET1.md` (branch `strategies`).
+[docs/geohash-relays-requirements-and-alternatives.md](docs/geohash-relays-requirements-and-alternatives.md).
 
 ## Why the two apps drift apart
 

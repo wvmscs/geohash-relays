@@ -11,11 +11,10 @@ client so that strategies can be compared and swapped:
 - `a0` to `a6`: the alternatives of
   [docs/geohash-relays-requirements-and-alternatives.md](docs/geohash-relays-requirements-and-alternatives.md).
 
-It serves [bitchat-console](https://github.com/wvmscs/bitchat-console) first (its decision
-D2), [bitchat-geohash](https://github.com/wvmscs/bitchat-geohash) too, and is meant to be
+It serves [bitchat-console](https://github.com/wvmscs/bitchat-console) first,
+[bitchat-geohash](https://github.com/wvmscs/bitchat-geohash) too, and is meant to be
 proposed to the BitChat apps (iOS, Android), hence the public-domain licence (Unlicense, like
-the iOS app). Progress is tracked in bitchat-console's `PLAN_ET1.md` (lot 1, `AS`) and in
-`PLAN_ET1.md` (the alternatives A0 to A6).
+the iOS app).
 
 Rules that only concern the author's local checkout, if any, are in `AGENTS.local.md`
 (not committed).
@@ -27,8 +26,8 @@ Rules that only concern the author's local checkout, if any, are in `AGENTS.loca
   [geohash-relays-net](https://github.com/wvmscs/geohash-relays-net) (GPL-3.0-or-later),
   which depends on this crate, never the reverse.
 - Strategies that talk to relays are machines without I/O (`sansio`: inputs in, actions
-  out, the time given), run by `geohash-relays-net` (decision G13).
-- Every constant lives in `params`, with its source (decision G14): none elsewhere.
+  out, the time given), run by `geohash-relays-net`.
+- Every constant lives in `params`, with its source: none elsewhere.
 - Dependencies (direct and transitive) must have a licence compatible with
   `Unlicense OR 0BSD`, permissive only: `cargo deny check` (`deny.toml`, also in CI).
 - Every rule must cite the app source it mirrors (file and function), so that a PR to the

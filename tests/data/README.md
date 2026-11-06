@@ -8,7 +8,7 @@
 | `nostr_relays-2026-10-22.csv` | the same, 3 days earlier | `282e64abd9` | 2026-10-22 |
 
 Never downloaded by the tests. The older versions measure how stable a strategy is when a list
-changes (bench, lot 1).
+changes (bench).
 
 Study of the clients (`docs/current-state.md`, `cargo run --release --example clients`):
 
