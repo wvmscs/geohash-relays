@@ -12,10 +12,10 @@ client so that strategies can be compared and swapped:
   [docs/geohash-relays-requirements-and-alternatives.md](docs/geohash-relays-requirements-and-alternatives.md), later
   (branch `strategies`, work in progress).
 
-It serves [bitchat-console](https://github.com/wvmscs/bitchat-console) first (its decision
-D2), [bitchat-geohash](https://github.com/wvmscs/bitchat-geohash) too, and is meant to be
+It serves [bitchat-console](https://github.com/wvmscs/bitchat-console) first,
+[bitchat-geohash](https://github.com/wvmscs/bitchat-geohash) too, and is meant to be
 proposed to the BitChat apps (iOS, Android), hence the public-domain licence (Unlicense, like
-the iOS app). Progress is tracked in bitchat-console's `PLAN_ET1.md` (lot 1).
+the iOS app).
 
 Rules that only concern the author's local checkout, if any, are in `AGENTS.local.md`
 (not committed).
