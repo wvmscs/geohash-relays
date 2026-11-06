@@ -27,22 +27,41 @@ Sources:
 
 File paths are relative to these repositories.
 
-## 1. The two bridges of bitchat iOS
+## 0. Terms
 
-bitchat iOS has two options that move signed Nostr events between the mesh and the relays. They
+Each term has one meaning only in this document.
+
+| Term | Meaning |
+|---|---|
+| relay | A Nostr server. Never a device of the mesh. |
+| mesh | The Bluetooth network of the phones. It has no server. |
+| peer | A device of the mesh. |
+| forward | A peer sends a mesh packet again on the mesh, while the TTL permits it. |
+| gateway | A peer that also has Internet and moves events between the mesh and the relays. |
+| gateway option | The bitchat iOS option that makes a phone a gateway for the geohash channels (bitchat: "gateway", `GatewayService`). |
+| island option | The bitchat iOS option that connects two parts of the mesh in one place through the relays (bitchat: "mesh bridge", `BridgeService`). "Bridge" appears only in code names. |
+| publish | Send an event to a relay. |
+| read | Subscribe to a relay for the events of a cell, and receive them. |
+| deposit | A peer without Internet gives a signed event to a gateway, which publishes it. |
+| up / down | Up: from the mesh to the relays. Down: from the relays to the mesh. |
+| connection | One WebSocket over TLS between a gateway and one relay. |
+
+## 1. The two options of bitchat iOS
+
+bitchat iOS has two options, the gateway option and the island option, that move signed Nostr events between the mesh and the relays. They
 use one mesh packet type, `nostrCarrier` (0x28, `bitchat/Protocols/NostrCarrierPacket.swift`):
 a direction, a geohash (1 to 12 characters) and the complete signed event (16 KiB at most).
 
-| | Gateway (`GatewayService.swift`) | Mesh bridge (`BridgeService.swift`) |
+| | Gateway option (`GatewayService.swift`) | Island option (`BridgeService.swift`) |
 |---|---|---|
 | User option | "share my internet with the mesh" | connect mesh islands of one place |
 | Events | kind 20000 with `g` = the carrier's geohash | kinds 20000 and 20001 with `r` = the carrier's cell |
-| Up (mesh → relays) | `toGateway`, directed to one gateway peer | `toBridge`, directed to one bridge peer |
-| Down (relays → mesh) | `fromGateway`, mesh broadcast | `fromBridge`, mesh broadcast |
+| Up (mesh → relays) | `toGateway`, directed to one gateway | `toBridge`, directed to one gateway |
+| Down (relays → mesh) | `fromGateway`, sent to all peers | `fromBridge`, sent to all peers |
 | Capability bit in the announce | `gateway` | `bridge`, with the cell in TLV `0x06` (`bridgeGeohash`, `Protocols/Packets.swift`) |
 
 The sender signs each event with its own key for the cell (section 1.3 of the requirements). The
-gateway cannot change it. It checks the signature before it publishes or rebroadcasts.
+gateway cannot change it. It checks the signature before it publishes the event or sends it down to the mesh.
 
 ## 2. Who chooses the cell
 
@@ -59,21 +78,21 @@ gateway cannot change it. It checks the signature before it publishes or rebroad
   ages of one list), the event goes to the relays of the gateway's list.
 - The gateway accepts deposits for any valid geohash. It does not compare the geohash with its
   own channel.
-- **Mesh bridge.** The cell is the cell of precision 6 of the sender's location. A sender
-  without location takes the cell that a bridge peer announces (`BridgeService.currentCell`).
-  The bridge peer publishes deposits to the 5 relays of the carrier's cell.
+- **Island option.** The cell is the cell of precision 6 of the sender's location. A sender
+  without location takes the cell that a gateway announces (`BridgeService.currentCell`).
+  The gateway publishes deposits to the 5 relays of the carrier's cell.
 
 ### 2.2 Down: the gateway
 
 - **Gateway.** The downlink is attached to the gateway's own channel subscription
   (`GeohashSubscriptionManager.switchLocationChannel`, `resubscribeCurrentGeohash`). The gateway
-  rebroadcasts only the events of **the one channel that its own user is viewing**
-  (`GatewayService.rebroadcastRelayEvent`). It does not subscribe for the cells of its mesh
+  sends down only the events of **the one channel that its own user is viewing**
+  (`GatewayService.rebroadcastRelayEvent`). It does not read the cells of its mesh
   peers.
 - A peer that receives a `fromGateway` carrier shows the event only if the carrier's geohash is
   the channel that this peer is viewing (`handleDownlinkBroadcast`). The broadcast still uses
   the airtime of the whole mesh: every node relays it within the TTL.
-- **Mesh bridge.** The bridge peer subscribes to its own cell and its 8 neighbours, with one
+- **Island option.** The gateway reads its own cell and its 8 neighbours, with one
   filter `#r` on the 5 relays of its own cell (`configureBridge`, `openSubscription`;
   `refreshRendezvous`).
 
@@ -88,15 +107,15 @@ gateway cannot change it. It checks the signature before it publishes or rebroad
 
 ## 3. What bitchat iOS limits
 
-| Item | Limit (gateway / bridge) | Source |
+| Item | Limit (gateway option / island option) | Source |
 |---|---|---|
 | Deposits per depositor | 10 per minute | `Limits.uplinkEventsPerMinutePerDepositor` |
 | Deposits queued while offline | 20 in total, 5 per depositor | `maxQueuedUplinks`, `maxQueuedUplinksPerDepositor` |
-| Mesh rebroadcasts | 30 / 20 per minute, 30 waiting (oldest dropped) | `downlinkEventsPerMinute`, `maxPendingDownlinks` |
+| Events sent down to the mesh | 30 / 20 per minute, 30 waiting (oldest dropped) | `downlinkEventsPerMinute`, `maxPendingDownlinks` |
 | Event age | 15 min | `maxEventAgeSeconds` |
 | Loop and duplicate caches | 3 sets of 512 event IDs, oldest removed | `maxTrackedEventIDs` |
 | Carried event | 16 KiB | `NostrCarrierPacket.maxEventJSONBytes` |
-| Bridge inbound | 600 events per minute, 120 per signer, 720 signature checks per minute, 128 participants | `BridgeService.Limits` |
+| Events read (island option) | 600 events per minute, 120 per signer, 720 signature checks per minute, 128 participants | `BridgeService.Limits` |
 
 Signature checks come after the cheap checks, the duplicate check and the rate limit. A flood of
 false deposits costs parsing, not Schnorr verification.
@@ -111,8 +130,8 @@ number of possible connections is the number of servers in the list.
 
 - **bitchat Android** has the capability bits `GATEWAY` and `BRIDGE`
   (`model/PeerCapabilities.kt`) and a receive limit for packet 0x28 marked "iOS only"
-  (`protocol/PacketPayloadLimits.kt`). It has no gateway and no bridge code. An Android phone
-  relays the carriers on the mesh, as it relays every packet type within the TTL
+  (`protocol/PacketPayloadLimits.kt`). It has no code for the gateway option or the island option. An Android phone
+  forwards the carriers on the mesh, as it forwards every packet type within the TTL
   (`mesh/PacketRelayManager.kt`), but it cannot be a gateway.
 - **AirHop** and **Sonar**: not studied here.
 
@@ -139,7 +158,7 @@ outside this crate. A Rust example must confirm it before the figures go into
 - The 5 nearest relays change little from one level to the next: a cell's centre is near the
   centre of the cell that contains it. Thus 6 levels and their neighbours need 2 to 3 times the
   relays of one cell, not 54 times.
-- The bridge's cell of precision 6 and its 8 neighbours use the same 5 relays on the iOS list, at
+- The island option's cell of precision 6 and its 8 neighbours use the same 5 relays on the iOS list, at
   the four points.
 
 **Cells of other places (teleport).** Cells drawn at random, precision 2, 4, 5 or 6, union of
@@ -173,7 +192,7 @@ Let *C* be the set of cells that the gateway reads, and *R(C)* the union of thei
   set) or 10 (AirHop).
 - **Lists:** the two CSV lists are 14 to 17 KB each. The entry point of branch `api` can keep
   only the relays that a home region needs (`home`, `params::HOME_NEAREST`).
-- **Mesh airtime:** each rebroadcast reaches every node of the mesh. The per-minute budget is a
+- **Mesh airtime:** every peer forwards each event that the gateway sends down. The per-minute budget is a
   limit on the mesh, not only on the gateway.
 
 ## 7. Proposals for a gateway with few resources
@@ -182,7 +201,7 @@ These are proposals. No client implements them.
 
 1. **Read a fixed set of cells, and announce it.** The owner of the gateway configures the
    cells it reads, for example the levels of its place (section 5: 9 to 18 relays for both
-   lists). The gateway announces them in its announce, as the bridge announces its cell (TLV
+   lists). The gateway announces them in its announce, as the island option announces its cell (TLV
    `0x06`). A peer then knows which channels it can read through this gateway.
 2. **Publish to any cell, within a connection budget.** For a cell outside the fixed set, the
    gateway connects, publishes, waits for `OK` and closes, or keeps a small pool of connections
