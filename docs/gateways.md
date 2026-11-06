@@ -218,3 +218,25 @@ These are proposals. No client implements them.
    Internet appear in the channel.
 7. **Calculate the relays with both apps' rules** for the fixed set (approach A4 at the scale of
    one gateway), because the gateway cannot know which list its depositors use.
+
+## 8. A gateway without its own Tor client
+
+The two apps connect to the relays through Tor by default (section 1.5 of the requirements). A
+microcontroller has no Tor client of its own. Without Tor, each relay sees the IP address of
+the gateway, and the relays of all the cells that it serves can link them.
+
+Proposal for such a gateway:
+
+1. **Use a remote Tor service of trust.** A participant gives the gateway access to a Tor
+   client (a SOCKS port) on another machine. This participant can find the network position of
+   the gateway. The participant agrees not to show its own network position with traffic that
+   others can recognise as coming from the gateway's network.
+2. **Hide all the metadata between the gateway and the remote service.** The link is an
+   encrypted tunnel (TLS, or QUIC, which costs less on a constrained device). An observer of
+   the link must not see the relays, the cells or the event sizes that the gateway uses.
+   Another security policy is acceptable if it is audited.
+3. **Tell the users.** The gateway knows that it uses a remote Tor service, and reports it: in
+   its status and in what it announces to the mesh. A peer can then choose not to deposit its
+   events with it.
+4. **Never fall back to a direct connection.** If the remote service is not available, the
+   gateway stops publishing and reading. It does not connect to the relays without Tor.
