@@ -18,3 +18,18 @@ sha2 = "0.10"
 # NIP-11 documents (A6), monitor reports (A2).
 serde_json = "1"
 thiserror = "2"
+
+[features]
+# The strategies the entry point (`relays`) can run, and its front ends.
+# The strategy modules themselves are always built.
+default = ["apps", "airhop", "a0", "a1", "async", "blocking"]
+apps = []
+airhop = []
+a0 = []
+a1 = []
+async = []
+blocking = []
+
+[[test]]
+name = "relays"
+required-features = ["apps", "airhop", "a0", "a1", "async", "blocking"]

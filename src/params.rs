@@ -238,6 +238,20 @@ pub const CENSUS_GEOHASH_PRECISION: usize = 6;
 /// A relay URL longer than this is not one (NIP-65 tags are free text).
 pub const CENSUS_MAX_URL_BYTES: usize = 256;
 
+// ---------------------------------------------------------------- one entry point (`relays`)
+
+/// A list whose download failed is asked again after this long.
+pub const LIST_RETRY_SECS: i64 = 3_600;
+/// A relay a client uses has its NIP-11 document and its reachability
+/// checked again after this long; a refusal found there lasts as long.
+pub const QUALIFY_EVERY_SECS: i64 = 6 * 3_600;
+/// `Relays::run` looks for due work this often.
+pub const RUN_TICK_SECS: u64 = 60;
+/// A home region keeps at least the relays this far down the order of its
+/// centre: the widest choice (AirHop, 10) and spares for dead relays (A0
+/// takes the next one).
+pub const HOME_NEAREST: usize = 18;
+
 // ---------------------------------------------------------------- comparison bench
 
 /// Seed of the bench's deterministic draws (failures).

@@ -10,7 +10,9 @@
 //!
 //! * [`as_`]: what the apps do today, iOS and Android rules (`AS`);
 //! * [`a0`] to [`a6`]: the alternatives;
-//! * [`census`]: the relays users name in their relay lists (NIP-65).
+//! * [`census`]: the relays users name in their relay lists (NIP-65);
+//! * [`relays`]: one entry point for a client, which only gives its means
+//!   to talk.
 //!
 //! Also the geohash arithmetic the apps use ([`geohash`]), every constant
 //! ([`params`]), and the form of the strategies that talk to relays
@@ -33,6 +35,7 @@ pub mod census;
 mod error;
 pub mod geohash;
 pub mod params;
+pub mod relays;
 pub mod sansio;
 pub mod strategy;
 

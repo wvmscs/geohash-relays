@@ -127,6 +127,15 @@ only); `relays_of` reads a NIP-65 relay list (kind 10002); `Crawler` reads the r
 set of relays, 16 at a time, keeping the newest list of each author. geohash-relays-net's
 `relay-census` runs it round after round, places the relays and qualifies them with A6.
 
+### One entry point (`relays`)
+
+For a client that wants the relays of a cell and nothing else to decide. It gives its means to
+talk (`RelayComm`: a link to a relay, an HTTPS GET, a persistent file, the time); `Relays`
+fetches and keeps the lists, checks the relays in use, sets aside dead or refusing ones,
+keeps only what a home region needs, and answers `get(cell)` with one list of relays, each
+read, written or both. Async or blocking (features `async`, `blocking`); the strategies it can
+run are features (`apps`, `airhop`, `a0`, `a1`).
+
 ## Tests
 
 `cargo test`: the expected choices on the frozen lists of `tests/data/` are those of

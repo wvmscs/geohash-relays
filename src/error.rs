@@ -14,6 +14,17 @@ pub enum Error {
     /// the rendezvous unless the strategy writes wide (A0).
     #[error("a local qualification needs a strategy that writes wide (A0), or a shared filter")]
     LocalQualification,
+    #[error("invalid relay address {0:?}")]
+    InvalidRelayUrl(String),
+    /// No relay list could be fetched, and none was kept.
+    #[error("no relay list")]
+    NoRelayList,
+    /// `get_with` for a strategy not given to `Relays`.
+    #[error("strategy {0} not configured")]
+    StrategyNotConfigured(String),
+    /// A list or a kept file that cannot be read.
+    #[error("unreadable {0}")]
+    Unreadable(String),
 }
 
 pub type Result<T> = std::result::Result<T, Error>;

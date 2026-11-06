@@ -2,6 +2,20 @@
 
 ## [Unreleased]
 
+### Added (branch `api`)
+- `relays`: one entry point for a client. The host gives its means to talk (`RelayComm`:
+  `connect_relay`, `fetch`, `file`, `now`, `sleep`, `log`) and asks `Relays::get(cell)` for
+  one list of relays, each read, written or both. It fetches and keeps the lists, checks the
+  relays in use (NIP-11, reachability) and sets aside the dead or refusing ones (A0 replaces
+  them), keeps only the relays a home region needs (`home`), adds private relays
+  (`extra_relays`), and gives two strategies' relays during a migration (`migrating_to`).
+  Async (feature `async`, no runtime imposed) and blocking (`blocking::Relays`) front ends over
+  one core without I/O.
+- Features `apps`, `airhop`, `a0`, `a1` (the strategies the entry point can run), `async`,
+  `blocking`; all on by default.
+- `params`: `LIST_RETRY_SECS`, `QUALIFY_EVERY_SECS`, `RUN_TICK_SECS`, `HOME_NEAREST`.
+- `Error`: `InvalidRelayUrl`, `NoRelayList`, `StrategyNotConfigured`, `Unreadable`.
+
 ### Added (branch `strategies`)
 - `SonarStrategy::with_history` and `with_levels`: simulate Sonar's pool, which keeps the relays
   of every cell opened in the session (`with_levels`: the coarser channels of the same place,
