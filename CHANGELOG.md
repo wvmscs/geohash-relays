@@ -3,6 +3,9 @@
 ## [Unreleased]
 
 ### Added (branch `strategies`)
+- `docs/gateways.md`: radio–Nostr gateways (bitchat iOS gateway and mesh bridge): who chooses
+  the cell up and down, what bitchat limits, how many relays a gateway needs, proposals for a
+  gateway with few resources. Under GPL-3.0-or-later (`LICENSES/GPL-3.0-or-later.txt`).
 - `SonarStrategy::with_history` and `with_levels`: simulate Sonar's pool, which keeps the relays
   of every cell opened in the session (`with_levels`: the coarser channels of the same place,
   `params::CHANNEL_LEVELS`). The `clients` example measures it.
