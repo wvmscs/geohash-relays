@@ -252,6 +252,25 @@ pub const RUN_TICK_SECS: u64 = 60;
 /// takes the next one).
 pub const HOME_NEAREST: usize = 18;
 
+// ---------------------------------------------------------------- gateway (`relays::gateway`)
+
+/// Links a gateway opens for reading. The levels of one place and their
+/// neighbours need 9 to 18 relays on the two apps' lists
+/// (`docs/gateways.md`, section 5); 24 leaves room for a few requests.
+pub const GATEWAY_MAX_READ_LINKS: usize = 24;
+/// Links a gateway keeps open to publish to cells it does not read.
+pub const GATEWAY_PUBLISH_POOL: usize = 5;
+/// How long a gateway reads a cell a peer asked for: the age limit of a
+/// carried event in bitchat iOS (`GatewayService.Limits.maxEventAgeSeconds`).
+pub const GATEWAY_LEASE_SECS: i64 = 15 * 60;
+/// Cells one peer can ask a gateway to read at the same time.
+pub const GATEWAY_LEASES_PER_PEER: usize = 2;
+/// Cells a gateway reads on request, in total.
+pub const GATEWAY_MAX_LEASES: usize = 8;
+/// From this level, a gateway's place includes the neighbour cells: a peer
+/// a few hundred metres away may be in the next cell.
+pub const GATEWAY_NEIGHBOURS_FROM: usize = 5;
+
 // ---------------------------------------------------------------- comparison bench
 
 /// Seed of the bench's deterministic draws (failures).

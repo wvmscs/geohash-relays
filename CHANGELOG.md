@@ -3,6 +3,16 @@
 ## [Unreleased]
 
 ### Added (branch `api`)
+- `relays::gateway`: what a gateway (a mesh peer with Internet) reads and where it publishes,
+  within fixed limits: served cells (`place_cells`: the levels of one place and their
+  neighbours), cells read on a peer's request for a fixed time (`request`, `expire`), one link
+  per relay with all its cells in one filter or one link per relay and cell (`Isolation`),
+  publishing through reading links or a pool of links closed least recently used first
+  (`publish`, `trim_pool`). No I/O.
+- `params`: `GATEWAY_MAX_READ_LINKS`, `GATEWAY_PUBLISH_POOL`, `GATEWAY_LEASE_SECS`,
+  `GATEWAY_LEASES_PER_PEER`, `GATEWAY_MAX_LEASES`, `GATEWAY_NEIGHBOURS_FROM`.
+- Example `gateway_load`: how many relays a gateway needs, for the cells of its place and for
+  distant cells.
 - `relays`: one entry point for a client. The host gives its means to talk (`RelayComm`:
   `connect_relay`, `fetch`, `file`, `now`, `sleep`, `log`) and asks `Relays::get(cell)` for
   one list of relays, each read, written or both. It fetches and keeps the lists, checks the
