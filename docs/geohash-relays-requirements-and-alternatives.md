@@ -47,9 +47,10 @@ This document keeps three types of statement apart:
 
 ## 1. Reverse engineering: what the apps do with relays
 
-> Updated on 2026-11-05 in [current-state.md](current-state.md): nothing changed in the relay choice of
+> Updated on 2026-11-06 in [current-state.md](current-state.md): nothing changed in the relay choice of
 > bitchat iOS (`v1.8.0`) and Android (`v2.2.0`, `main`); AirHop, a third client, picks the 10
-> nearest relays; B2 does not choose relays by geohash.
+> nearest relays; Sonar picks 12 from a list of 2026-02-15 and writes a channel's events to every
+> relay of its pool; B2 does not choose relays by geohash.
 
 ### 1.1 Two sets of relays
 
@@ -549,6 +550,44 @@ Added on 2026-10-30. The summary table below does not include it.
 - Kind 10050 could tell the private message relays of a contact with a long-term key. This use is
   outside relay selection for a cell. It can work only between BitChat apps, because their format is
   not compatible with NIP-17 (Annex A.1). This document does not study it further.
+
+### Sonar's pool: studied, to be explored
+
+Added on 2026-11-06. The summary table below does not include it.
+
+**Facts** ([current-state.md](current-state.md#sonar)).
+- Sonar's core keeps one pool of relays for the session: its default relays, and the 12 relays
+  nearest each cell the user opened. Nothing removes a relay from it.
+- Each channel event goes to **every relay of the pool**, and each channel subscription covers
+  them all. The cell's own relays are only a part of it.
+- The pool is not announced: no Nostr event and no Bluetooth message carries it. Other users do
+  not know it; they benefit only when they read one of its relays.
+
+**Measurements** (simulation, `SonarStrategy::with_history` and `with_levels`, lists and census
+of [current-state.md](current-state.md#3-do-their-users-meet)). The user opens the coarser
+channels of the same place first (region, province, city…), as the channel picker offers them:
+- Between Sonar and another client, the pool gains at most 0.6 point of rendezvous. The relays
+  near the centre of a coarser cell are not those the other clients read for the finer one.
+- Between two users of Sonar, the default relays raise the working relays from 4.0 to 6.0 per
+  cell (precision 2). They already met in every cell measured, so the gain is a margin against
+  dead relays.
+
+**What it brings.** It is a form of "write wide" (A0) that needs no shared order: a peer writes
+where its other channels are. It helps most between users who follow the same set of channels,
+for example the levels of one place.
+
+**What it costs.**
+- **Privacy.** One connection carries the events of all the user's cells. A relay of the pool can
+  link the user's cells, although each cell has its own key (section 1.3). One Tor circuit per
+  cell would be needed to separate them; Sonar's core does not use Tor.
+- **Load.** Each event is written to the whole pool: with *n* cells opened, up to 12 × *n* relays
+  per event, growing during the session.
+- **No convergence.** Without an announcement, two pools meet only by chance. Announcing them
+  is A3; ranking them is A0 or A1.
+
+**To explore.** Whether the pool should be kept between sessions, emptied on demand, or limited
+to the channels of one place; whether its relays should come from a separate source; how it
+combines with A0 and A3. The simulator measures each variant before any client changes.
 
 ### Summary
 

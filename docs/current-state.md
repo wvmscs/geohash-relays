@@ -1,4 +1,4 @@
-# Current state of the location channels: clients, lists, encounters (2026-11-05)
+# Current state of the location channels: clients, lists, encounters (2026-11-06)
 
 Who writes to the geohash channels today, how each client chooses its relays, and whether their
 users meet. It completes and summarises section 1 of
@@ -17,12 +17,13 @@ releases, and adds the clients not covered by the first study. How the numbers a
 - **AirHop**, a third client wire-compatible with bitchat, chooses **10** relays (the 5 bitchat
   picks, then 5 backups), from georelays' raw list frozen in each release.
 - **Sonar**, a bitchat-compatible client with a Rust core, chooses **12** relays with
-  Android's rule from a list **compiled into its core on 2026-06-15**, and sends a channel's
-  events to every relay of its pool, not only to the cell's.
+  Android's rule (Android and desktop apps) from georelays' list **of 2026-02-15**, copied by
+  hand into its core on 2026-06-15, and sends a channel's events to every relay of its pool,
+  not only to the cell's. Its iOS app still runs bitchat iOS's older code.
 - Users of iOS and Android meet in **95 %** of the cells when every relay works, but in only
   **67 %** on the relays that actually answered. AirHop meets Android everywhere (same source,
   twice as many relays) and iOS in 87 to 92 % of the cells. Sonar meets Android in only
-  **42 %** of the cells on working relays: its list is five months old.
+  **42 %** of the cells on working relays: its list is nearly nine months old.
 
 ## 1. The clients
 
@@ -31,7 +32,8 @@ releases, and adds the clients not covered by the first study. How the numbers a
 | bitchat iOS | release `v1.8.0` (2026-10-23) = `main` `04995f68e4` | bitchat's reviewed `relays/online_relays_gps.csv`, fetched from `main` at runtime; last changed 2026-07-26 (`fb8fe39713`) | one entry per normalised host | 5 nearest the cell's centre, ties by host |
 | bitchat Android | release `v2.2.0` (2026-10-28); `main` `998f168487` (2026-11-01) | georelays' raw `nostr_relays.csv`, fetched at runtime once a day; a copy in the app for the first launch | every line as is (`host` and `host:443` are two) | 5 nearest, ties in list order (stable sort) |
 | AirHop | release `v1.0.10` (2026-11-02) = `main` | georelays' raw `nostr_relays.csv`, **frozen in the app** at build time, never fetched; a weekly job proposes the new one as a pull request | one entry per canonical address (rule ported from iOS) | **10** nearest, ties by URL |
-| Sonar | pre-release `v0.1-alpha.15.5` (2026-10-29); `main` `fdf091c` (2026-11-01): same relay code | georelays' raw list of **2026-06-15**, compiled into the core; the weekly refresh writes another file, which the core does not read | every line as is (`host` and `host:443` are two) | **12** nearest, ties in list order; events sent to the whole pool |
+| Sonar (core: Android, desktop) | pre-release `v0.1-alpha.15.5` (2026-10-29); `main` `fdf091c` (2026-11-01): same relay code | georelays' raw list of **2026-02-15**, copied into the core on 2026-06-15; the weekly refresh writes the source file, which the core does not read | every line as is (`host` and `host:443` are two) | **12** nearest, ties in list order; events sent to the whole pool |
+| Sonar iOS | the same | georelays' raw `nostr_relays.csv`, fetched at runtime once a day; the repository's weekly file in the app for the first launch | one entry per line, scheme removed, no lowercasing | 5 nearest (bitchat iOS's older code), ties in an order that changes at each launch |
 
 ### bitchat iOS
 
@@ -84,10 +86,16 @@ Unlicense) whose apps (Android, iOS, desktop) share a Rust core. What its code d
 2026-10-03); its comments say it mirrors bitchat iOS, which it does not:
 
 - **The list is frozen in the core.** `core/sonar-core/src/relays_gps.csv`, read with
-  `include_str!`, is georelays' raw list of 2026-06-15 (313 relays, 133 found working by the
-  census). The repository's weekly job (`.github/workflows/fetch_georelays.yml`) refreshes
-  `relays/online_relays_gps.csv`, a file of the bitchat fork it started from; the core never
-  reads it. Nothing is fetched at runtime.
+  `include_str!`, has 313 relays, 133 found working by the census.
+  - **Where it comes from.** A weekly job (`.github/workflows/fetch_georelays.yml`, Sundays at
+    06:00 UTC) downloads georelays' raw `nostr_relays.csv` from its `main` into
+    `relays/online_relays_gps.csv`, a file of the bitchat fork Sonar started from, and commits
+    it when it changed. On 2026-06-15 (`85629a8`), a developer copied that file into the core;
+    the job had not run since 2026-02-15, so the core holds georelays' list of **2026-02-15**.
+  - **How it is renewed.** By hand only: the core's comment calls fetching and caching the file
+    "a future improvement", and nothing copies it again. The job has updated the source file
+    every week since 2026-06-21; the core has not followed. Nothing is fetched at runtime. This
+    study will take the core's next copy as soon as it lands.
 - **Android's reading and rule, not iOS's.** Each line is kept as it is, `wss://` put in front
   (no lowercasing, `host` and `host:443` stay two entries, no duplicate removed, no host
   refused); the relays are sorted by distance to the cell's centre with a stable sort, so ties
@@ -102,10 +110,20 @@ Unlicense) whose apps (Android, iOS, desktop) share a Rust core. What its code d
   every cell opened before. A relay far from the cell then receives its events, and each relay
   of the pool sees all the cells the user follows. The core has no Tor support (no Tor or SOCKS
   dependency): it connects directly.
+- **The pool stays on the phone.** Nothing removes a relay from it during the session, and
+  nothing tells it to anyone: no Nostr event carries it (no relay list, kind 10002, in the core)
+  and no Bluetooth message either. Another user benefits only when, by chance, they read one
+  of these relays for the same cell.
+- **Sonar's iOS app is another client.** Its channels go through the bitchat iOS code it
+  started from (`ios/bitchat/Nostr/GeoRelayDirectory.swift`, older than bitchat's current
+  one): the 5 nearest relays, from georelays' raw list fetched once a day (the repository's
+  weekly file serves the first launch). Its entries are kept in a set, so equal distances fall
+  in an order that changes at each launch. It is not modelled below.
 
-Modelled in geohash-relays as `SonarStrategy`: the cell's 12, and `with_pool()` for the
-five default relays; the relays of the other cells depend on what the user did before and are
-left out, so the measures below are a floor.
+Modelled in geohash-relays as `SonarStrategy`: the cell's 12, `with_pool()` for the five
+default relays, and a simulation of the cells opened before: `with_history()` for given cells,
+`with_levels()` for the coarser channels of the same place (region, province, city…, as the
+channel picker offers them).
 
 
 ## 2. The lists
@@ -115,7 +133,7 @@ left out, so the measures below are a floor.
 | bitchat iOS (2026-07-26) | 326 | 326 | **164** |
 | bitchat Android (georelays 2026-10-29) | 392 | 346 | 213 |
 | AirHop `v1.0.10` (georelays, week of 2026-11-02) | 339 | 339 | 211 |
-| Sonar core (georelays, 2026-06-15) | 313 | 313 | **133** |
+| Sonar core (georelays 2026-02-15, copied 2026-06-15) | 313 | 313 | **133** |
 
 Servers in common: iOS and Android 200, iOS and AirHop 198, Android and AirHop 323.
 
@@ -159,12 +177,16 @@ What it shows:
   without A0's replacement of the failed relays.
 - **A frozen list ages with the release.** AirHop meets Android everywhere today because their
   lists are a few days apart; a phone that does not update the app drifts as iOS has. Sonar
-  shows the end of it: with the same rule as Android and more relays, a list five months old
-  leaves it in reach of Android in only 42 % of the cells. With its own refreshed file (the one
+  shows the end of it: with the same rule as Android and more relays, a list nearly nine months
+  old leaves it in reach of Android in only 42 % of the cells. With its own refreshed file (the one
   its weekly job already writes), the same code would meet Android in 96 % of them.
 - **Writing wide is not the same as choosing well.** Sonar's pool adds relays to every cell, but
-  not the ones the other clients read there: its default relays change nothing measurable,
-  while every relay of the pool learns the user's cells.
+  not the ones the other clients read there: its default relays change nothing measurable.
+  Simulated with the coarser channels of the same place opened first, the pool gains at most
+  0.6 point (p5, working relays: Android 40.4 %, iOS 66.0 %, AirHop 91.6 %), while every relay
+  of the pool learns the user's cells. The idea itself, a pool that every cell writes to, is
+  discussed as an approach in
+  [geohash-relays-requirements-and-alternatives.md](geohash-relays-requirements-and-alternatives.md#sonars-pool-studied-to-be-explored).
 
 ## 4. What it changes in the proposal
 
@@ -192,9 +214,12 @@ The proposal of [evaluation.md](evaluation.md) stands, and is more urgent on two
   `.github/workflows/sync-relays.yml`, `assets/data/nostr_relays.csv`.
 - Sonar: [hedwig-corp/bitchat-to-sonar](https://github.com/hedwig-corp/bitchat-to-sonar),
   pre-release `v0.1-alpha.15.5`, `main` `fdf091c`: `core/sonar-core/src/relay_directory.rs`,
-  `core/sonar-core/src/relays_gps.csv`, `core/sonar-core/src/client.rs`,
+  `core/sonar-core/src/relays_gps.csv` (copied in `85629a8`, identical to
+  `relays/online_relays_gps.csv` of `c1f5868`, 2026-02-15), `core/sonar-core/src/client.rs`,
   `apps/sonar/composeApp/src/commonMain/kotlin/chat/bitchat/sonar/RelayDiagnostics.kt`,
-  `.github/workflows/fetch_georelays.yml`.
+  `.github/workflows/fetch_georelays.yml` and the history of `relays/online_relays_gps.csv`,
+  `ios/bitchat/Nostr/GeoRelayDirectory.swift`, `ios/bitchat/Services/TransportConfig.swift`,
+  `ios/bitchat/Protocols/LocationChannel.swift`.
 - Lists: [permissionlesstech/georelays](https://github.com/permissionlesstech/georelays)
   `nostr_relays.csv` at `e7c6e88edf` (2026-10-29); census of [geohash-relays-net](https://github.com/wvmscs/geohash-relays-net#census-of-relays-relay-census) (`relay-census`,
   2026-10-30).

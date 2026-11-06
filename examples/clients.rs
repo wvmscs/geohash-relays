@@ -2,7 +2,7 @@
 // SPDX-License-Identifier: Unlicense OR 0BSD
 
 //! The clients of the location channels today (`docs/current-state.md`): bitchat
-//! iOS, bitchat Android and AirHop, each with its own list and rule. Do
+//! iOS, bitchat Android, AirHop and Sonar, each with its own list and rule. Do
 //! their users meet in a cell?
 //!
 //!   cargo run --release --example clients
@@ -58,12 +58,15 @@ fn main() {
     let airhop = AirhopStrategy::new(AIRHOP);
     let sonar = SonarStrategy::new(SONAR);
     let sonar_pool = SonarStrategy::new(SONAR).with_pool();
-    let clients: [(&str, &dyn Strategy); 5] = [
+    // Simulation: the user opened the coarser channels of the place first.
+    let sonar_levels = SonarStrategy::new(SONAR).with_pool().with_levels();
+    let clients: [(&str, &dyn Strategy); 6] = [
         ("bitchat iOS", &ios),
         ("bitchat Android", &android),
         ("AirHop", &airhop),
         ("Sonar (12 nearest)", &sonar),
         ("Sonar (12 + default pool)", &sonar_pool),
+        ("Sonar (12 + pool + coarser levels)", &sonar_levels),
     ];
 
     println!("## Lists\n");

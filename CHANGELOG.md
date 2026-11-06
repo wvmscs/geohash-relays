@@ -2,6 +2,11 @@
 
 ## [Unreleased]
 
+### Added (branch `strategies`)
+- `SonarStrategy::with_history` and `with_levels`: simulate Sonar's pool, which keeps the relays
+  of every cell opened in the session (`with_levels`: the coarser channels of the same place,
+  `params::CHANNEL_LEVELS`). The `clients` example measures it.
+
 ### Added (lot 13, branch `strategies`)
 - `census`: `relay_url` (a public relay address from free text, normalised), `relays_of` (the
   relays of a NIP-65 relay list, kind 10002), and the `Crawler` machine (relay lists of a set

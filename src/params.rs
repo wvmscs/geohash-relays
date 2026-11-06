@@ -72,6 +72,12 @@ pub const SONAR_DEFAULT_RELAYS: &[&str] = &[
     "wss://nostr.relay.hedwig.sh",
 ];
 
+/// The precisions of the channels the apps offer for one place: region,
+/// province, city, neighbourhood, block, building (`GeohashChannelLevel`,
+/// `ios/bitchat/Protocols/LocationChannel.swift`, `fdf091c`; bitchat's own
+/// levels). Sonar's pool keeps the relays of each level opened.
+pub const CHANNEL_LEVELS: &[usize] = &[2, 4, 5, 6, 7, 8];
+
 /// iOS list, as the app downloads it (`GeoRelayDirectory.swift`).
 pub const IOS_LIST_URL: &str = "https://raw.githubusercontent.com/permissionlesstech/bitchat/refs/heads/main/relays/online_relays_gps.csv";
 /// Android list: georelays' daily output, unreviewed (`RelayDirectory.kt`).

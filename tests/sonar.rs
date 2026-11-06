@@ -61,3 +61,43 @@ fn the_pool_adds_the_default_relays_once() {
     assert!(pool.len() <= 5 && pool.contains(&"wss://relay.damus.io"));
     assert_eq!(read.len(), 12 + pool.len());
 }
+
+#[test]
+fn the_cells_opened_before_stay_in_the_pool() {
+    let alone = SonarStrategy::new(SONAR).read("u09tv").unwrap();
+    let paris = SonarStrategy::new(SONAR).read("u09").unwrap();
+    let read = SonarStrategy::new(SONAR)
+        .with_history(&["u09", "u09tv"])
+        .read("u09tv")
+        .unwrap();
+    // The cell's own 12 first, then those of `u09` it lacks, once each.
+    assert_eq!(read[..12], alone[..]);
+    for s in &paris {
+        assert!(
+            read.iter().any(|r| r.relay.url == s.relay.url),
+            "{}",
+            s.relay.url
+        );
+    }
+    let extra = read.iter().filter(|s| s.origin == Origin::Shared).count();
+    assert_eq!(read.len(), 12 + extra);
+    assert!(extra <= 12);
+}
+
+#[test]
+fn the_levels_of_a_place_are_its_coarser_channels() {
+    let levels = SonarStrategy::new(SONAR)
+        .with_levels()
+        .read("u09tvw")
+        .unwrap();
+    let history = SonarStrategy::new(SONAR)
+        .with_history(&["u0", "u09t", "u09tv"])
+        .read("u09tvw")
+        .unwrap();
+    assert_eq!(levels, history);
+    // A region (precision 2) has no coarser channel.
+    assert_eq!(
+        SonarStrategy::new(SONAR).with_levels().read("u0").unwrap(),
+        SonarStrategy::new(SONAR).read("u0").unwrap()
+    );
+}
