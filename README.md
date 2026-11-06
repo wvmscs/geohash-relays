@@ -136,6 +136,14 @@ keeps only what a home region needs, and answers `get(cell)` with one list of re
 read, written or both. Async or blocking (features `async`, `blocking`); the strategies it can
 run are features (`apps`, `airhop`, `a0`, `a1`).
 
+### A gateway (`relays::gateway`)
+
+For a peer of the Bluetooth mesh that also has Internet and serves the other peers. It reads a
+fixed set of cells (by default the levels of its place, `place_cells`), reads other cells only
+on a peer's request and for a fixed time, publishes to any cell through a bounded pool of
+links, and tells the host which links to open and close. `cargo run --release --example
+gateway_load` measures how many relays this needs.
+
 ## Tests
 
 `cargo test`: the expected choices on the frozen lists of `tests/data/` are those of

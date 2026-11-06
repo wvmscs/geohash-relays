@@ -22,6 +22,7 @@ compile_error!("the entry point needs at least one strategy: feature apps, airho
 
 #[cfg(any(feature = "async", feature = "blocking"))]
 mod engine;
+pub mod gateway;
 mod types;
 
 #[cfg(feature = "async")]
