@@ -134,7 +134,8 @@ talk (`RelayComm`: a link to a relay, an HTTPS GET, a persistent file, the time)
 fetches and keeps the lists, checks the relays in use, sets aside dead or refusing ones,
 keeps only what a home region needs, and answers `get(cell)` with one list of relays, each
 read, written or both. Async or blocking (features `async`, `blocking`); the strategies it can
-run are features (`apps`, `airhop`, `a0`, `a1`).
+run are features (`apps`, `airhop`, `a0`, `a1`). How to use it, and what it does not do yet:
+[docs/integration.md](docs/integration.md) (working document).
 
 ## Tests
 
