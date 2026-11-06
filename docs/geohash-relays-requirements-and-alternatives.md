@@ -507,6 +507,9 @@ or A2.
 These mechanisms do not replace Nostr. But they show that the app can already move signed events
 through more than one path.
 
+Who chooses the cell on each side of a gateway, and what a gateway must hold: see
+[gateways.md](gateways.md).
+
 ### NIP-65 (kind 10002): studied, not retained as an approach
 
 Added on 2026-10-30. The summary table below does not include it.
