@@ -562,6 +562,15 @@ Added on 2026-11-06. The summary table below does not include it.
   them all. The cell's own relays are only a part of it.
 - The pool is not announced: no Nostr event and no Bluetooth message carries it. Other users do
   not know it; they benefit only when they read one of its relays.
+- **It looks like a side effect, not a design.** The 12 relays are added to the client's
+  single `nostr-sdk` pool, and channel events are sent with `send_event`, which writes to every
+  relay of that pool. Elsewhere the core chooses its relays explicitly (`send_event_to` for key
+  packages and gift wraps). The code's only stated aim is the 12: "wider than bitchat's 5 so the
+  two overlap". Nothing in the code or its comments presents the pool as intended.
+- **Its list is renewed by hand.** The core holds a copy, made on 2026-06-15, of georelays' list
+  of 2026-02-15. A weekly job refreshes the repository's source file, but nothing copies it into
+  the core again; the core's comment calls fetching the list "a future improvement". The study
+  will follow Sonar's next copy, when it comes.
 
 **Measurements** (simulation, `SonarStrategy::with_history` and `with_levels`, lists and census
 of [current-state.md](current-state.md#3-do-their-users-meet)). The user opens the coarser
@@ -572,7 +581,7 @@ channels of the same place first (region, province, city…), as the channel pic
   cell (precision 2). They already met in every cell measured, so the gain is a margin against
   dead relays.
 
-**What it brings.** It is a form of "write wide" (A0) that needs no shared order: a peer writes
+**What it brings**, taken as an idea in its own right. It is a form of "write wide" (A0) that needs no shared order: a peer writes
 where its other channels are. It helps most between users who follow the same set of channels,
 for example the levels of one place.
 
