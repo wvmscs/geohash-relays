@@ -1,10 +1,12 @@
-# The clients of the location channels (2026-11-05)
+# Current state of the location channels: clients, lists, encounters (2026-11-05)
 
 Who writes to the geohash channels today, how each client chooses its relays, and whether their
-users meet. It updates [geohash-relays-updates.md](geohash-relays-updates.md) and
+users meet. It completes and summarises section 1 of
+[geohash-relays-requirements-and-alternatives.md](geohash-relays-requirements-and-alternatives.md).
+It updates [geohash-relays-updates.md](geohash-relays-updates.md) and
 [relay-selection-corrections.md](relay-selection-corrections.md) (2026-10-27) to the latest
-releases, and adds the clients that appeared since. Reproduce the numbers with
-`cargo run --release --example clients`; the lists are frozen in `tests/data` (see its README).
+releases, and adds the clients not covered by the first study. How the numbers are made: see
+[Sources](#sources).
 
 ## Summary
 
@@ -67,12 +69,12 @@ MIT), wire-compatible on Bluetooth and on the location channels
   **a phone keeps the list of the release it runs**: weeks, then months, as with iOS.
 - It reads the list as iOS does (one entry per canonical address, IPv4 and private names
   refused), takes the **10 nearest** to the cell's centre and breaks ties by URL. Its first 5 are
-  exactly what bitchat iOS would pick on the same list (test `tests/airhop.rs`); the next 5 are
+  exactly what bitchat iOS would pick on the same list (our tests); the next 5 are
   "warm backups", written to and read from even while the first 5 work, so that two users on
   either side of a partial outage still share a relay.
 - The user may add up to 5 relays by hand, or turn discovery off and use only those.
 
-Modelled here as `AirhopStrategy` (`src/as_/airhop.rs`).
+Modelled in geohash-relays as `AirhopStrategy`.
 
 ### Sonar
 
@@ -90,7 +92,7 @@ Unlicense) whose apps (Android, iOS, desktop) share a Rust core. What its code d
   (no lowercasing, `host` and `host:443` stay two entries, no duplicate removed, no host
   refused); the relays are sorted by distance to the cell's centre with a stable sort, so ties
   keep the list's order (`closest_relays_for_geohash`, `relay_directory.rs`). Its first 5 are
-  exactly what bitchat Android picks on the same list (test `tests/sonar.rs`).
+  exactly what bitchat Android picks on the same list (our tests).
 - **12 relays, not 5** (`ensure_geohash_relays`, `client.rs`): "wider than bitchat's 5 so the two
   overlap on at least one relay even when the directories don't perfectly agree".
 - **One pool for everything.** The 12 relays are added to the client's single `nostr-sdk` pool,
@@ -101,7 +103,7 @@ Unlicense) whose apps (Android, iOS, desktop) share a Rust core. What its code d
   of the pool sees all the cells the user follows. The core has no Tor support (no Tor or SOCKS
   dependency): it connects directly.
 
-Modelled here as `SonarStrategy` (`src/as_/sonar.rs`): the cell's 12, and `with_pool()` for the
+Modelled in geohash-relays as `SonarStrategy`: the cell's 12, and `with_pool()` for the
 five default relays; the relays of the other cells depend on what the user did before and are
 left out, so the measures below are a floor.
 
@@ -150,7 +152,7 @@ Two users of the **same** client, working relays only:
 What it shows:
 
 - **The lists' age now weighs more than the rules.** On paper, iOS and Android meet in 95 % of
-  the cells (93 % on 2026-10-27, `evaluation.md`); once the dead relays are taken out, in two
+  the cells (93 % on 2026-10-27, [evaluation.md](evaluation.md)); once the dead relays are taken out, in two
   cells out of three. An iOS user's 5 relays are on average less than half working.
 - **More relays cover for dead ones.** AirHop's 10 relays keep it in reach of both bitchat apps
   more often than they reach each other. It is the redundancy A0 proposes (write 8, read 5),
@@ -173,7 +175,7 @@ The proposal of [evaluation.md](evaluation.md) stands, and is more urgent on two
 2. **A0's redundancy and replacement**: AirHop shows that more relays per cell keep clients
    together in spite of dead relays; A0 adds the replacement, so that a dead relay does not
    take a place.
-3. **One list for all clients** (G16, `PLAN_ET1.md`): four clients now read four copies of
+3. **One list for all clients**: four clients now read four copies of
    two sources of different ages, the oldest compiled into an app. A few trusted entities publishing one qualified list, which
    every client reads, removes the drift.
 
@@ -194,5 +196,9 @@ The proposal of [evaluation.md](evaluation.md) stands, and is more urgent on two
   `apps/sonar/composeApp/src/commonMain/kotlin/chat/bitchat/sonar/RelayDiagnostics.kt`,
   `.github/workflows/fetch_georelays.yml`.
 - Lists: [permissionlesstech/georelays](https://github.com/permissionlesstech/georelays)
-  `nostr_relays.csv` at `e7c6e88edf` (2026-10-29); census of geohash-relays-net (`relay-census`,
+  `nostr_relays.csv` at `e7c6e88edf` (2026-10-29); census of [geohash-relays-net](https://github.com/wvmscs/geohash-relays-net#census-of-relays-relay-census) (`relay-census`,
   2026-10-30).
+- This study: the bench [`examples/clients.rs`](https://github.com/wvmscs/geohash-relays/blob/strategies/examples/clients.rs) of geohash-relays
+  (`cargo run --release --example clients`), the models
+  [`src/as_/airhop.rs`](https://github.com/wvmscs/geohash-relays/blob/strategies/src/as_/airhop.rs) and [`src/as_/sonar.rs`](https://github.com/wvmscs/geohash-relays/blob/strategies/src/as_/sonar.rs),
+  and the relay lists frozen in [`tests/data`](https://github.com/wvmscs/geohash-relays/tree/strategies/tests/data).

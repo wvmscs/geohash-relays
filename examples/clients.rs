@@ -1,7 +1,7 @@
 // SPDX-FileCopyrightText: 2026 William VITAL, FR (wvmscs)
 // SPDX-License-Identifier: Unlicense OR 0BSD
 
-//! The clients of the location channels today (`docs/clients.md`): bitchat
+//! The clients of the location channels today (`docs/current-state.md`): bitchat
 //! iOS, bitchat Android and AirHop, each with its own list and rule. Do
 //! their users meet in a cell?
 //!

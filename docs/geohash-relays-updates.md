@@ -12,7 +12,7 @@
 `04995f68e4`; Android: `permissionlesstech/bitchat-android` at commit `eed88190c0`; upstream list:
 `permissionlesstech/georelays`) and on measurements made with `examples/geohash_map.rs`.*
 
-> **Update, 2026-11-05:** [clients.md](clients.md) brings this to the latest releases (iOS
+> **Update, 2026-11-05:** [current-state.md](current-state.md) brings this to the latest releases (iOS
 > `v1.8.0`, Android `v2.2.0`): same rules and same refresh; the iOS list is still that of
 > 2026-07-26, and half of its relays no longer answer.
 

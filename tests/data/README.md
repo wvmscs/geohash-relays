@@ -10,7 +10,7 @@
 Never downloaded by the tests. The older versions measure how stable a strategy is when a list
 changes (bench, lot 1).
 
-Study of the clients (`docs/clients.md`, `cargo run --release --example clients`):
+Study of the clients (`docs/current-state.md`, `cargo run --release --example clients`):
 
 | File | Source | Commit | Date |
 |---|---|---|---|

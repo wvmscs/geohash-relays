@@ -1,12 +1,10 @@
 # BitChat geohash channels on Nostr: app behaviour, relay requirements and alternatives
 
-> **About this copy.** Written on 2026-10-27 while studying the apps with an earlier,
-> unpublished prototype: a Rust crate whose examples were `geohash_map` (relay selection and
-> read tests, with a map) and `geohash_bot` (a bot on the union of both apps' relays). Copied
-> here on 2026-10-29; names such as `examples/…`, "this crate" or "our tool" in the text
-> refer to the prototype. The rules it describes are implemented in geohash-relays
-> (`src/as_/`, strategy `AS`) and used by [bitchat-geohash](https://github.com/wvmscs/bitchat-geohash) and
-> [bitchat-console](https://github.com/wvmscs/bitchat-console).
+> Written on 2026-10-27 from the source code of the apps and from read tests with our own
+> tools. The rules it describes are implemented in geohash-relays (`src/as_/`, strategy `AS`)
+> and used by [bitchat-geohash](https://github.com/wvmscs/bitchat-geohash) (a map of the
+> relays each strategy chooses) and [bitchat-console](https://github.com/wvmscs/bitchat-console)
+> (a console client for the location channels).
 
 **Status:** draft specification, version 0.2. Use it as a starting point. It is not complete.
 **Date:** 2026-10-27
@@ -41,7 +39,6 @@ This document keeps three types of statement apart:
 4. [Is the selection of 5 relays necessary?](#4-is-the-selection-of-5-relays-necessary)
 5. [Alternative approaches](#5-alternative-approaches)
 6. [Recommendation](#6-recommendation)
-7. [Open questions and measurements to do](#7-open-questions-and-measurements-to-do)
 - [Annex A: Definitions of the requested terms](#annex-a-definitions-of-the-requested-terms)
 - [Annex B: Other terms](#annex-b-other-terms)
 - [Annex C: Source files](#annex-c-source-files)
@@ -50,7 +47,7 @@ This document keeps three types of statement apart:
 
 ## 1. Reverse engineering: what the apps do with relays
 
-> Updated on 2026-11-05 in [clients.md](clients.md): nothing changed in the relay choice of
+> Updated on 2026-11-05 in [current-state.md](current-state.md): nothing changed in the relay choice of
 > bitchat iOS (`v1.8.0`) and Android (`v2.2.0`, `main`); AirHop, a third client, picks the 10
 > nearest relays; B2 does not choose relays by geohash.
 
@@ -195,7 +192,7 @@ The clients do not check the **relay** itself. They do not check:
 ### 1.7 Measurements on 2026-10-27
 
 The test request was a `REQ` with `kinds:[20000,20001]`, `#g`, `since: −1 h`, `limit: 200`.
-The prototype's `geohash_map` (see the note at the top) sent it without Tor. "Events" is the number of events that the relay
+Our map tool sent it without Tor. "Events" is the number of events that the relay
 sent before `EOSE`.
 
 | Cell | Relay (iOS rank / Android rank) | Events |
@@ -267,7 +264,7 @@ requirement refers to the fact that justifies it.
 | R10 | The relay **MUST** index the single-letter tags **`g`** and **`r`**. It **MUST** accept filters with 9 or more values. | Filters `#g` and `#r` on a cell and its 8 neighbours (section 1.2). |
 | R11 | The relay **SHOULD keep kinds 20000 and 20001 for at least 1 h**, and kind 20001 for 24 h if possible. It **SHOULD** send up to 200 events before `EOSE`. | The two apps request this history (section 1.2). This is **a deliberate difference from NIP-01**. The relay should declare it (R16). Annex A.6 discusses this choice. |
 | R12 | The relay **MUST** store kind **1** events that have a `g` tag. It **SHOULD** apply NIP-40 (expiration) and NIP-09 (deletion). | Location notes and board notes (section 1.2). |
-| R13 | The relay **SHOULD** accept events of at least **64 KiB**. Measurements must confirm this value (section 7). | iOS accepts private envelopes up to 64 KiB, and courier drops up to 20 KiB. Nobody has measured the maximum size of a channel message. |
+| R13 | The relay **SHOULD** accept events of at least **64 KiB**. Measurements must confirm this value. | iOS accepts private envelopes up to 64 KiB, and courier drops up to 20 KiB. Nobody has measured the maximum size of a channel message. |
 | R14 | The relay **MUST** send `OK` for each `EVENT` and `EOSE` for each `REQ`. | Without `EOSE`, iOS waits 10 s. Courier drops need `OK`. |
 | R15 | The relay **SHOULD NOT** reject an event whose `created_at` is a few minutes in the future. | Phone clocks are not exact. iOS accepts this difference. |
 
@@ -450,8 +447,8 @@ The tag details must be checked against the current version of NIP-66.
 - The events are **signed**. Thus any peer can publish them again, and nobody can change them.
 - A client or a bot **subscribes to the union** of the iOS relays and the Android relays of a cell.
   It publishes on each set the events that it receives from the other set.
-- The prototype's bot (`geohash_bot`) **already read the union**. bitchat-console publishes
-  the events again (`--republish`).
+- bitchat-console, our console client, **reads the union** and publishes the events again
+  (`--republish`).
 - To limit amplification:
   - remove duplicates by event ID;
   - publish only to the relays that do not have the event;
@@ -542,7 +539,7 @@ Added on 2026-10-30. The summary table below does not include it.
 4. **A3 gives the same information without these problems.** The presence event carries the relays.
    This event is ephemeral, and older apps ignore the tag.
 5. **Popularity does not measure suitability.** Only a test shows that a relay accepts kinds 20000
-   and 20001. Popularity is also easy to fake (Annex A.4). The test of section 7, item 8 confirms
+   and 20001. Popularity is also easy to fake (Annex A.4). A test on 2026-10-30 confirms
    this: two relays that nearly 500 lists name refuse an unknown key.
 
 **Proposals.**
@@ -571,82 +568,22 @@ Added on 2026-10-30. The summary table below does not include it.
 
 ## 6. Recommendation
 
-Use three steps, from the most immediate to the most structural.
+Each team decides the changes to its own app. This section only gives the steps that we propose,
+in order.
 
-1. **Now, with no change to the apps (A4).** Use one or more republisher peers. They publish the
-   events of the cells that they follow between the iOS set and the Android set.
-   bitchat-console's `--republish` does this.
-2. **Proposals for the two apps (A0 + A6):**
-   - one shared rule and one shared list;
-   - write wide, read narrow;
-   - replace failed relays;
-   - read `AUTH` and `CLOSED`;
-   - set `includeDefaults` to add 1 or 2 shared relays.
-3. **Target (A1 + A2, then A3):**
-   - select relays with salted hashing, from candidates that many NIP-66 monitors report against
-     the requirements of section 3;
-   - then let each cell converge through the relays that peers announce in their presence events.
+1. **Short term, low cost: one list, kept up to date, and of good quality.**
+   - All clients read the same list, and the list is updated regularly. Today iOS reads a
+     reviewed list that is three months old, and Android reads an unreviewed list each day
+     (section 1.4).
+   - Improve the content of the list rather than the selection rule: remove the relays that do
+     not meet the requirements of section 3. The review of the iOS list already does this by
+     hand. Automatic qualification (A6) can make it better.
+   - The bitchat team and the third-party teams share the maintenance and the publication of this
+     one list, by an agreement between them.
+2. **At the pace of each team:** write wide and read narrow, replace failed relays (A0), and read
+   `AUTH` and `CLOSED` (section 1.5).
 
-Each step stays useful after the next step.
-
----
-
-## 7. Open questions and measurements to do
-
-1. **Retention of ephemeral events (assumption H3, Annex A.5).**
-   - For each relay of the two lists, write a kind 20000 event. Then read it back after 5 min,
-     1 h and 24 h.
-   - This measurement confirms or rejects H3.
-   - The test must write to a channel. Use a test cell, or a test kind.
-2. **Access through Tor.** Do the reachability tests again through Tor. Compare the results with
-   the tests without Tor.
-3. **NIP-11.** Collect the NIP-11 documents of the listed relays. Count the relays that A6 would
-   remove.
-4. **Cost of a capture.** For some large cities, count the servers that an attacker must put at the
-   centre point to take the 5 places. Do this for iOS and for Android.
-5. **Real frequency.** Measure the rate of kinds 20000 and 20001 in active cells. Use the results
-   to set the values of R8 and to calculate the cost of A0 ("write wide") and A4 (republication).
-6. **NIP-66.** Check the current format of kinds 30166 and 10166. Make a list of the monitors that
-   exist.
-7. **Relay tag name (A3).** Select a name that is different from `r`. The iOS mesh bridge already
-   uses `r`.
-8. **Relays known only from NIP-65.** Run the A6 tests on the relays that the census finds and the
-   two lists do not contain.
-   - **Done for France on 2026-10-30.** The results are below. The test covers 24 servers: the census
-     places them in France, and it locates only 1,030 of its 3,371 addresses. So 24 is a minimum.
-   - **Still to do:** the same test for the other countries.
-
-   **Method.** One test from one machine, without Tor, with `nak`. The events use a throwaway key
-   and the cell `7zzzzzzz`, in open sea. For each relay, the test opens a subscription. Then it writes
-   one event of kind 20000 and one of kind 20001 without authentication, and it reads them back
-   after about 5 s. If the relay asks for NIP-42, the test starts again with authentication. The
-   ambiguous relays had a second test.
-
-   | Servers | Accept both kinds, without authentication | Send them to the live subscriber |
-   |---|---|---|
-   | 8 in the lists of the apps | 7 | the same 7 |
-   | 16 not in the lists | 1 (`pipe.imwald.eu`) | the same 1 |
-
-   | Why a server refuses (15 servers not in the lists) | Servers |
-   |---|---|
-   | Access list, or key not admitted | 7 |
-   | Web of trust | 2 |
-   | Authentication, then access list | 2 |
-   | Refusal without a message (two `strfry` relays) | 2 |
-   | Payment | 1 |
-   | Not reachable | 1 |
-
-   **What this shows, for France, on this date.**
-   - The lists do not miss many relays. Most servers that are absent refuse a key they do not know,
-     and each cell has its own unknown key (section 1.3). Only `pipe.imwald.eu` meets R9 and is absent.
-   - A list can contain a relay that does not meet R9. `relay.mmwaves.de` is in the iOS list, and it
-     refuses keys outside its access list, also with authentication. The apps ignore this refusal
-     (section 1.5).
-   - R11 is not always met. Of the 8 servers that accept the events, 5 no longer return them after
-     about 5 s. These 5 still meet R9. This result is relevant to H3 (Annex A.5).
-
-   **Limits.** One measurement, from one machine, at one time. A refusal concerns a key with no
-   history. The result does not show how a relay behaves over time.
+The other approaches of section 5 stay available. The summary table gives their criteria.
 
 ---
 
@@ -758,7 +695,7 @@ controls. Thus the attacker can move a cell to this relay.
 - NIP-13 (proof of work) is a cost countermeasure.
 - No RFC or NIP defines the Sybil attack itself.
 
-### A.5 Assumption H3 (section 7, item 1)
+### A.5 Assumption H3
 
 **Statement.** "Each geohash relay keeps ephemeral events (kinds 20000 and 20001) for at least one
 hour, and sends them in reply to a request with `since`."

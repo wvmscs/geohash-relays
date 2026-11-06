@@ -3,10 +3,10 @@
 How the strategies of this crate compare, on the frozen relay lists of the apps and on the
 real network (29/10/2026). The strategies are those of
 [geohash-relays-requirements-and-alternatives.md](geohash-relays-requirements-and-alternatives.md) (§5); `AS` is
-what the apps do today. Reproduce the bench with `cargo run --release --example compare`.
+what the apps do today. How the numbers are made: see [Sources](#sources).
 
 The clients as they are on 2026-11-05 (bitchat iOS and Android, AirHop), and their rendezvous on
-the relays that actually answer: [clients.md](clients.md).
+the relays that actually answer: [current-state.md](current-state.md).
 
 ## Bench (frozen lists)
 
@@ -57,20 +57,19 @@ port): in what the census produces (the address without a path, else the one mos
 name), and in the alternatives A0 to A3 and A5 (`one_per_server`: the smallest address, the
 same whatever the order of the list). `AS` stays what the apps do, and A4 follows it. The
 frozen lists have no paths: the bench above does not change.
-Reproduce with `relay-census --refresh`, then `relay-census --eligibility`.
 
 ## Real network (read only)
 
-- **NIP-11 (A6, §7 question 3)**, through Tor, 467 relays of the two lists: 323 to 352 give a
+- **NIP-11 (A6)**, through Tor, 467 relays of the two lists: 323 to 352 give a
   document (two runs; the slow ones time out at 20 s). By their declarations alone, 26 to 28
   are unusable: 21–22 restrict writes (R6), 8–9 require NIP-42 (R5), 3 require payment (R6),
   1 requires more than 8 bits of proof of work (R7). 81–93 allow 20 subscriptions or fewer
   per connection (R8), 7 accept messages under 64 KiB (R13).
-- **NIP-66 monitors (A2, §7 question 6)**: active monitors publish kind 10166 on
+- **NIP-66 monitors (A2)**: active monitors publish kind 10166 on
   `relay.nostr.watch`, `monitorlizard.nostr1.com`, `relaypag.es`, and on large relays; some
   check writes (`c: write`), most only `open`, `read`, `nip11`. A2 needs monitors that test
   writes through Tor; few do today.
-- **Traffic (A4, §7 question 5)**: in the last hour, cell `u0` had 7 messages and 203
+- **Traffic (A4)**: in the last hour, cell `u0` had 7 messages and 203
   presences on `nostr.sathoarder.com` (about 3.5 events per minute); `9q`, `dr`, and
   `relay.damus.io` for the three, had none. A small sample, but the limit of 60 republications
   per minute of A4 is far above it.
@@ -78,7 +77,7 @@ Reproduce with `relay-census --refresh`, then `relay-census --eligibility`.
   (`*.trycloudflare.com`): the lists carry entries that A6 or A2 must remove.
 
 Not measured yet (they write, or need the user's machines): retention of ephemeral events and
-access through Tor by probing (§7 questions 1 and 2, `bitchat-console --qualify-probe`); a
+access through Tor by probing (`bitchat-console --qualify-probe`); a
 real strfry federation (A5).
 
 ## Proposal
@@ -97,5 +96,10 @@ From the most immediate to the most structural, as §6 of the requirements:
 
 A5 is infrastructure the operators may add; it needs no change to the apps.
 
-The Swift and Kotlin ports (lot 11 of `PLAN_ET1.md`) cover the strategies retained after
-review: proposed A0, A6, A1 (with its frozen score vectors), and the A3 tag.
+## Sources
+
+- The bench: [`examples/compare.rs`](https://github.com/wvmscs/geohash-relays/blob/strategies/examples/compare.rs) of geohash-relays
+  (`cargo run --release --example compare`), on the relay lists frozen in
+  [`tests/data`](https://github.com/wvmscs/geohash-relays/tree/strategies/tests/data).
+- The census: [`relay-census`](https://github.com/wvmscs/geohash-relays-net#census-of-relays-relay-census)
+  of geohash-relays-net (`relay-census --refresh`, then `relay-census --eligibility`).
